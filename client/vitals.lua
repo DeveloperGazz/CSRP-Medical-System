@@ -47,7 +47,7 @@ function CalculateVitals(injuries, currentVitals)
             
             if impact.blood_pressure then
                 vitals.bloodPressureSystolic = vitals.bloodPressureSystolic + (impact.blood_pressure * severity)
-                vitals.bloodPressureDiastolic = vitals.bloodPressureDiastolic + (impact.blood_pressure * 0.7 * severity)
+                vitals.bloodPressureDiastolic = vitals.bloodPressureDiastolic + (impact.blood_pressure * Config.Progression.DiastolicRatio * severity)
             end
             
             if impact.oxygen_sat then

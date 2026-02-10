@@ -13,7 +13,9 @@ Config.Permissions = {
     UsePatientMenu = true, -- Everyone can use patient menu
     UseParamedicMenu = true, -- Set to false to restrict to specific jobs
     ParamedicJobs = {'ambulance', 'doctor', 'ems'}, -- Job names that can use paramedic menu
-    AdminCommands = true -- Allow admin commands
+    AdminCommands = true, -- Allow admin commands
+    AdminAcePermission = 'csrp.medical.admin', -- ACE permission for admin commands (optional)
+    UseAcePermissions = false -- Set to true to use ACE permissions instead of simple toggle
 }
 
 -- ==========================================
@@ -75,11 +77,14 @@ Config.VitalSigns = {
 -- ==========================================
 Config.Progression = {
     BleedingRate = 1.0, -- Multiplier for bleeding progression (1.0 = normal)
+    BleedingProgressionRate = 0.1, -- Base rate of bleeding increase (10% per tick)
+    BloodLossPerTick = 2, -- Percentage of blood lost per tick based on bleeding severity
     ShockThreshold = 30, -- Blood loss % before shock develops
     CardiacArrestChance = 0.05, -- 5% chance per tick in critical condition
     AirwayObstructionChance = 0.10, -- 10% chance for unconscious patients
     ProgressionInterval = 10000, -- Check every 10 seconds
-    EnableComplications = true -- Enable secondary injuries
+    EnableComplications = true, -- Enable secondary injuries
+    DiastolicRatio = 0.7 -- Ratio of systolic to diastolic blood pressure
 }
 
 -- ==========================================

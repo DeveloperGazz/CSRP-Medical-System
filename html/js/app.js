@@ -195,14 +195,16 @@ function updateTreatments(treatments) {
 }
 
 // Filter treatments
-function filterTreatments(category) {
+function filterTreatments(category, eventTarget) {
     currentTreatmentFilter = category;
     
     // Update active button
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (eventTarget) {
+        eventTarget.classList.add('active');
+    }
     
     updateTreatments(treatmentsData);
 }
@@ -229,7 +231,7 @@ function updateEquipment(equipment) {
 }
 
 // Tab switching
-function showTab(tabName) {
+function showTab(tabName, eventTarget) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -237,7 +239,9 @@ function showTab(tabName) {
         content.classList.remove('active');
     });
     
-    event.target.classList.add('active');
+    if (eventTarget) {
+        eventTarget.classList.add('active');
+    }
     document.getElementById(tabName + '-tab').classList.add('active');
 }
 

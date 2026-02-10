@@ -34,11 +34,11 @@ function ProgressInjury(injury, vitals)
     
     -- Bleeding progression
     if injury.bleeding > 0 then
-        local bleedingIncrease = injury.bleeding * 0.1 * Config.Progression.BleedingRate
+        local bleedingIncrease = injury.bleeding * Config.Progression.BleedingProgressionRate * Config.Progression.BleedingRate
         injury.bleeding = math.min(100, injury.bleeding + bleedingIncrease)
         
         -- Reduce blood volume
-        local bloodLoss = (injury.bleeding / 100) * 2
+        local bloodLoss = (injury.bleeding / 100) * Config.Progression.BloodLossPerTick
         vitals.bloodVolume = math.max(0, vitals.bloodVolume - bloodLoss)
         
         if Config.Debug then
