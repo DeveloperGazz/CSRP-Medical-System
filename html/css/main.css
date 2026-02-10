@@ -1,0 +1,79 @@
+.light-mode {
+    --background-color: #FFFFFF;
+    --text-color: #000000;
+    --primary-color: #005EB8;
+    --secondary-color: #E5E5E5;
+    --vital-color: #FF0000;
+}
+
+.dark-mode {
+    --background-color: #121212;
+    --text-color: #FFFFFF;
+    --primary-color: #005EB8;
+    --secondary-color: #333333;
+    --vital-color: #FF5722;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: var(--secondary-color);
+}
+
+.notification {
+    background-color: var(--vital-color);
+    color: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--secondary-color);
+}
+
+.scrollbar::-webkit-scrollbar {
+    width: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+    background: var(--secondary-color);
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+}
+
+.card {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px 0;
+    transition: background-color 0.3s;
+}
+
+.card:hover {
+    background-color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .button {
+        width: 100%;
+    }
+}
