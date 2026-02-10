@@ -3,264 +3,432 @@ Config = {}
 -- ==========================================
 -- GENERAL SETTINGS
 -- ==========================================
-Config.Debug = false -- Enable debug messages
-Config.Language = 'en' -- Language for UI/messages
+Config.Debug = false -- Enable debug prints
+Config.UseKilometers = true -- false for miles (UK uses KM for medical)
+Config.Language = 'en_GB' -- UK English
 
 -- ==========================================
 -- PERMISSIONS
 -- ==========================================
-Config.Permissions = {
-    UsePatientMenu = true, -- Everyone can use patient menu
-    UseParamedicMenu = true, -- Set to false to restrict to specific jobs
-    ParamedicJobs = {'ambulance', 'doctor', 'ems'}, -- Job names that can use paramedic menu
-    AdminCommands = true, -- Allow admin commands
-    AdminAcePermission = 'csrp.medical.admin', -- ACE permission for admin commands (optional)
-    UseAcePermissions = false -- Set to true to use ACE permissions instead of simple toggle
+Config.ParamedicJobs = {
+    'ambulance',
+    'paramedic',
+    'ems',
+    'nhs'
+}
+
+Config.AdminGroups = {
+    'admin',
+    'superadmin',
+    'moderator'
 }
 
 -- ==========================================
 -- VITAL SIGNS SETTINGS
 -- ==========================================
-Config.VitalSigns = {
-    -- Heart Rate (BPM)
+Config.VitalRanges = {
     HeartRate = {
-        Normal = {min = 60, max = 100},
-        Low = {min = 0, max = 59},
-        High = {min = 101, max = 200},
-        Critical = {min = 0, max = 40},
-        UpdateInterval = 5000 -- Update every 5 seconds
+        normal = {60, 100},
+        tachycardia = {100, 150},
+        severe_tachycardia = {150, 200},
+        bradycardia = {40, 60},
+        severe_bradycardia = {0, 40},
+        cardiac_arrest = 0
     },
-    
-    -- Blood Pressure (mmHg)
     BloodPressure = {
-        Normal = {systolic = {min = 90, max = 140}, diastolic = {min = 60, max = 90}},
-        Low = {systolic = {min = 0, max = 89}, diastolic = {min = 0, max = 59}},
-        High = {systolic = {min = 141, max = 200}, diastolic = {min = 91, max = 140}},
-        UpdateInterval = 10000
+        normal_systolic = {90, 140},
+        normal_diastolic = {60, 90},
+        hypotension_systolic = {0, 90},
+        hypertension_systolic = {140, 200},
+        shock_systolic = {0, 70}
     },
-    
-    -- Respiratory Rate (breaths per minute)
     RespiratoryRate = {
-        Normal = {min = 12, max = 20},
-        Low = {min = 0, max = 11},
-        High = {min = 21, max = 60},
-        UpdateInterval = 8000
+        normal = {12, 20},
+        tachypnea = {20, 30},
+        severe_tachypnea = {30, 50},
+        bradypnea = {8, 12},
+        respiratory_arrest = 0
     },
-    
-    -- Oxygen Saturation (%)
-    OxygenSaturation = {
-        Normal = {min = 95, max = 100},
-        Low = {min = 90, max = 94},
-        Critical = {min = 0, max = 89},
-        UpdateInterval = 5000
+    SpO2 = {
+        normal = {95, 100},
+        mild_hypoxia = {90, 95},
+        moderate_hypoxia = {85, 90},
+        severe_hypoxia = {0, 85}
     },
-    
-    -- Temperature (Celsius)
     Temperature = {
-        Normal = {min = 36.1, max = 37.2},
-        Low = {min = 0, max = 36.0},
-        High = {min = 37.3, max = 45},
-        UpdateInterval = 15000
-    },
-    
-    -- Consciousness (AVPU)
-    Consciousness = {
-        Alert = 4,
-        Voice = 3,
-        Pain = 2,
-        Unresponsive = 1
+        normal = {36.1, 37.2},
+        hypothermia_mild = {32, 35},
+        hypothermia_moderate = {28, 32},
+        hypothermia_severe = {0, 28},
+        hyperthermia_mild = {37.5, 38.5},
+        hyperthermia_moderate = {38.5, 40},
+        hyperthermia_severe = {40, 45}
     }
 }
+
+-- Update frequency for vital signs (milliseconds)
+Config.VitalUpdateInterval = 5000 -- Every 5 seconds
 
 -- ==========================================
 -- INJURY PROGRESSION SETTINGS
 -- ==========================================
-Config.Progression = {
-    BleedingRate = 1.0, -- Multiplier for bleeding progression (1.0 = normal)
-    BleedingProgressionRate = 0.1, -- Base rate of bleeding increase (10% per tick)
-    BloodLossPerTick = 2, -- Percentage of blood lost per tick based on bleeding severity
-    ShockThreshold = 30, -- Blood loss % before shock develops
-    CardiacArrestChance = 0.05, -- 5% chance per tick in critical condition
-    AirwayObstructionChance = 0.10, -- 10% chance for unconscious patients
-    ProgressionInterval = 10000, -- Check every 10 seconds
-    EnableComplications = true, -- Enable secondary injuries
-    DiastolicRatio = 0.7 -- Ratio of systolic to diastolic blood pressure
+Config.ProgressionEnabled = true
+Config.ProgressionInterval = 10000 -- Check every 10 seconds
+
+Config.BleedingRates = {
+    minor = 0.5,      -- % blood loss per interval
+    moderate = 1.5,
+    severe = 3.0,
+    critical = 5.0
+}
+
+Config.ShockThreshold = 30 -- % blood loss before shock begins
+Config.DeathThreshold = 70 -- % blood loss before death
+
+-- ==========================================
+-- CONSCIOUSNESS SYSTEM (AVPU)
+-- ==========================================
+Config.AVPULevels = {
+    'Alert',           -- Fully conscious
+    'Voice',           -- Responds to voice
+    'Pain',            -- Only responds to pain
+    'Unresponsive'     -- Unconscious
+}
+
+Config.ConsciousnessThresholds = {
+    unresponsive = 20,  -- Below 20% condition
+    pain = 40,
+    voice = 60
+    -- Above 60 = Alert
 }
 
 -- ==========================================
--- EQUIPMENT QUANTITIES
+-- EQUIPMENT MANAGEMENT
 -- ==========================================
-Config.Equipment = {
-    -- Bandages and Dressings
-    Bandages = 15,
-    PressureDressings = 10,
-    ChestSeals = 2,
-    BurnDressings = 5,
+Config.EquipmentEnabled = true
+Config.EquipmentCharges = {
+    -- Dressings & Bleeding Control
+    pressure_dressing = 10,
+    tourniquet = 4,
+    hemostatic_gauze = 6,
+    chest_seal = 2,
+    pelvic_binder = 1,
     
-    -- Hemorrhage Control
-    Tourniquets = 4,
-    HemostaticGauze = 6,
-    PelvicBinder = 1,
+    -- Airway
+    opa = 3,
+    npa = 3,
+    suction_unit = 5,
+    bvm = 1,
     
-    -- Airway Management
-    OPA = 3,
-    NPA = 3,
-    SuctionUses = 10,
+    -- Breathing
+    oxygen_mask = 10,
+    nasal_cannula = 10,
+    oxygen_time = 3600, -- 60 minutes in seconds
     
-    -- Breathing Support
-    OxygenMinutes = 60,
-    BVM = 1,
-    NeedleDecompression = 2,
-    
-    -- IV Therapy
-    IVBags = 3,
-    IVLines = 5,
+    -- Circulation
+    iv_cannula = 5,
+    iv_fluid_bag = 3,
     
     -- Fracture Management
-    Splints = 6,
-    CervicalCollars = 2,
-    SpineBoards = 1,
+    splint = 6,
+    c_collar = 2,
     
-    -- Medications (doses)
-    Paracetamol = 5,
-    Morphine = 3,
-    Fentanyl = 2,
-    Entonox = 1,
-    Adrenaline = 5,
-    Aspirin = 5,
-    GTN = 3,
-    Salbutamol = 3,
-    Glucose = 5,
-    Naloxone = 3,
-    Midazolam = 2,
+    -- Monitoring
+    bp_cuff = 999, -- Unlimited (reusable)
+    thermometer = 999,
+    pulse_oximeter = 999,
     
-    -- Other
-    Defibrillator = 1,
-    ThermalBlanket = 2,
-    CoolingPacks = 5
+    -- Medications
+    paracetamol = 5,
+    morphine = 3,
+    fentanyl = 2,
+    entonox = 1,
+    adrenaline = 4,
+    aspirin = 5,
+    gtn = 3,
+    salbutamol = 3,
+    glucose = 4,
+    naloxone = 3,
+    midazolam = 2,
+    
+    -- Emergency Equipment
+    aed = 1,
+    needle_decompression = 2
 }
+
+Config.ResupplyLocations = {
+    {coords = vector3(298.5, -584.5, 43.3), name = "Pillbox Hospital"},
+    {coords = vector3(1839.6, 3672.9, 34.3), name = "Sandy Shores Medical"},
+    {coords = vector3(-247.3, 6331.0, 32.4), name = "Paleto Bay Medical"}
+}
+
+Config.ResupplyRadius = 10.0 -- meters
 
 -- ==========================================
 -- TREATMENT EFFECTIVENESS
 -- ==========================================
-Config.Treatments = {
-    -- How effective each treatment is (0.0 - 1.0)
-    DirectPressure = 0.3, -- Reduces bleeding by 30%
-    PressureDressing = 0.6, -- Reduces bleeding by 60%
-    Tourniquet = 1.0, -- Stops limb bleeding completely
-    HemostaticGauze = 0.8, -- Reduces bleeding by 80%
+Config.TreatmentEffectiveness = {
+    -- Bleeding Control
+    direct_pressure = 30,        -- % bleeding reduction
+    pressure_dressing = 60,
+    tourniquet = 100,           -- Complete stop for limbs
+    hemostatic_gauze = 80,
     
-    -- IV Fluid restoration
-    IVFluidRestoration = 20, -- Restores 20% blood volume
+    -- Fluid Resuscitation
+    iv_fluids = 15,             -- % blood volume restored per bag
     
-    -- Medication effects (vitals improvement)
-    MorphineEffect = 0.7, -- Pain reduction
-    AdrenalineEffect = 0.5, -- Cardiac support
+    -- Oxygen Therapy
+    oxygen_low_flow = 2,        -- SpO2 increase per interval
+    oxygen_high_flow = 5,
+    oxygen_bvm = 8,
     
-    -- Oxygen therapy
-    OxygenEffectiveness = 1.5, -- SpO2 improvement multiplier
+    -- Pain Relief (pain reduction %)
+    paracetamol = 20,
+    entonox = 40,
+    morphine = 70,
+    fentanyl = 80,
     
-    -- Splint effectiveness
-    SplintPainReduction = 0.4 -- 40% pain reduction
+    -- Cardiac
+    cpr_effectiveness = 30,     -- % chance per cycle to restore pulse
+    aed_effectiveness = 60,     -- % chance to restore rhythm
+    adrenaline_cardiac = 20     -- Bonus % to cardiac interventions
 }
 
 -- ==========================================
--- HOSPITAL/RESUPPLY LOCATIONS
+-- PSYCHOLOGICAL ELEMENTS
 -- ==========================================
-Config.Hospitals = {
-    {
-        name = "Pillbox Hill Medical Center",
-        coords = vector3(307.7, -1433.5, 29.9),
-        blip = true,
-        resupply = true
-    },
-    {
-        name = "Sandy Shores Medical Center",
-        coords = vector3(1839.6, 3672.9, 34.3),
-        blip = true,
-        resupply = true
-    },
-    {
-        name = "Paleto Bay Medical Center",
-        coords = vector3(-247.3, 6331.1, 32.4),
-        blip = true,
-        resupply = true
+Config.PsychologicalEnabled = true
+
+Config.AnxietyEffects = {
+    enabled = true,
+    heart_rate_increase = 20,   -- BPM increase when anxious
+    bp_increase = 15            -- mmHg increase
+}
+
+Config.PainReactions = {
+    enabled = true,
+    scream_chance = 30,         -- % chance to scream when in severe pain
+    flinch_chance = 60,         -- % chance to flinch during examination
+    resistance_chance = 40      -- % chance to resist painful procedures
+}
+
+Config.ConsentSystem = {
+    enabled = true,
+    allow_refusal = true,
+    unconscious_implied_consent = true
+}
+
+Config.MentalHealthScenarios = {
+    'anxiety_attack',
+    'depression',
+    'psychosis',
+    'suicidal_ideation',
+    'ptsd_episode',
+    'substance_withdrawal'
+}
+
+-- ==========================================
+-- BYSTANDER SYSTEM
+-- ==========================================
+Config.BystandersEnabled = true
+
+Config.BystanderReactions = {
+    panic_chance = 40,          -- % chance bystanders panic
+    crowd_radius = 15.0,        -- Radius bystanders gather
+    interference_chance = 25,   -- % chance of getting in the way
+    good_samaritan_chance = 15  -- % chance someone helps
+}
+
+Config.WitnessStatements = {
+    enabled = true,
+    provide_injury_cause = true,
+    provide_time_info = true
+}
+
+Config.CivilianFirstAid = {
+    enabled = true,
+    can_perform_cpr = true,
+    can_use_recovery_position = true,
+    can_apply_pressure = true,
+    effectiveness = 20          -- % effectiveness vs paramedic
+}
+
+-- ==========================================
+-- MULTI-CASUALTY INCIDENTS
+-- ==========================================
+Config.MCIEnabled = true
+
+Config.TriageCategories = {
+    P1 = {name = "Immediate", color = "red", priority = 1},
+    P2 = {name = "Urgent", color = "yellow", priority = 2},
+    P3 = {name = "Delayed", color = "green", priority = 3},
+    DEAD = {name = "Deceased", color = "black", priority = 4}
+}
+
+Config.MCIThreshold = 3 -- Number of patients to trigger MCI mode
+
+Config.IncidentCommandEnabled = true
+Config.ResourceSharingEnabled = true
+
+-- ==========================================
+-- REALISTIC COMPLICATIONS
+-- ==========================================
+Config.ComplicationsEnabled = true
+
+Config.TreatmentFailureRates = {
+    iv_insertion = 15,          -- % chance of failure
+    intubation = 10,
+    needle_decompression = 5,
+    cpr_rib_fracture = 30      -- % chance CPR causes rib fractures
+}
+
+Config.MedicationReactions = {
+    allergic_reaction_chance = 5,
+    side_effects_chance = 15
+}
+
+Config.EquipmentMalfunction = {
+    enabled = true,
+    aed_failure = 5,            -- % chance
+    iv_infiltration = 10,
+    oxygen_leak = 3
+}
+
+Config.SuddenDeterioration = {
+    enabled = true,
+    check_interval = 30000,     -- Every 30 seconds
+    cardiac_arrest_chance = 2,  -- % for critical patients
+    airway_obstruction_chance = 5
+}
+
+-- ==========================================
+-- ENHANCED PATIENT EXPERIENCE
+-- ==========================================
+Config.PatientEffectsEnabled = true
+
+Config.PainSystem = {
+    enabled = true,
+    visual_blur = true,
+    screen_shake = true,
+    movement_reduction = true,
+    pain_levels = {
+        none = {blur = 0, shake = 0, movement = 100},
+        mild = {blur = 5, shake = 1, movement = 90},
+        moderate = {blur = 15, shake = 3, movement = 70},
+        severe = {blur = 30, shake = 6, movement = 40},
+        extreme = {blur = 50, shake = 10, movement = 20}
     }
 }
 
+Config.BloodLossEffects = {
+    enabled = true,
+    screen_desaturation = true,
+    tunnel_vision = true,
+    weakness = true,
+    thresholds = {
+        mild = 20,      -- % blood loss
+        moderate = 40,
+        severe = 60
+    }
+}
+
+Config.UnconsciousnessSystem = {
+    enabled = true,
+    can_hear_paramedics = true,
+    screen_blackout = true,
+    ragdoll = true
+}
+
+Config.RecoveryTimeline = {
+    enabled = true,
+    minor_injury_heal_time = 300,     -- 5 minutes
+    moderate_injury_heal_time = 1800, -- 30 minutes
+    severe_injury_heal_time = 7200,   -- 2 hours
+    critical_injury_heal_time = 14400 -- 4 hours
+}
+
+Config.PersistentInjuries = {
+    enabled = true,
+    show_bandages = true,
+    show_splints = true,
+    show_blood = true,
+    scar_system = true
+}
+
 -- ==========================================
--- UI SETTINGS
+-- IMMERSIVE DETAILS
 -- ==========================================
-Config.UI = {
-    -- Color scheme (NHS Blue)
-    PrimaryColor = '#005EB8',
-    SecondaryColor = '#41B6E6',
-    DangerColor = '#DA291C',
-    WarningColor = '#FFB81C',
-    SuccessColor = '#009639',
-    
-    -- Positioning
-    Position = 'right', -- left, center, right
-    Scale = 1.0,
-    
-    -- Keybinds
+Config.ImmersionEnabled = true
+
+Config.BloodTrails = {
+    enabled = true,
+    particle_effect = "core",
+    particle_name = "ent_amb_blood_splash",
+    drip_interval = 5000        -- Every 5 seconds while bleeding
+}
+
+Config.MedicalWaste = {
+    enabled = true,
+    spawn_props = true,
+    disposal_required = true,
+    props = {
+        'prop_ld_binbag_01',
+        'prop_cs_cotton_bud',
+        'prop_syringe_01'
+    }
+}
+
+Config.PatientBelongings = {
+    enabled = true,
+    track_valuables = true,
+    secure_before_transport = true
+}
+
+Config.DeathProcedures = {
+    enabled = true,
+    confirm_death = true,
+    notify_police = true,
+    cover_body = true,
+    time_of_death_log = true
+}
+
+-- ==========================================
+-- NOTIFICATION SETTINGS
+-- ==========================================
+Config.NotificationType = 'native' -- 'native', 'custom', 'mythic', 'okokNotify'
+
+-- ==========================================
+-- KEY BINDINGS
+-- ==========================================
+Config.Keys = {
     OpenPatientMenu = 'F6',
     OpenParamedicMenu = 'F7',
-    
-    -- Animation duration
-    AnimationSpeed = 300 -- milliseconds
+    OpenMCIMenu = 'F8',
+    InteractWithPatient = 'E',
+    CancelAction = 'X'
 }
 
 -- ==========================================
--- ANIMATIONS
+-- ANIMATION SETTINGS
 -- ==========================================
-Config.Animations = {
-    Bandaging = {dict = 'amb@medic@standing@kneel@base', anim = 'base', duration = 5000},
-    CPR = {dict = 'mini@cpr@char_a@cpr_str', anim = 'cpr_pumpchest', duration = 15000},
-    Examination = {dict = 'amb@code_human_police_investigate@idle_a', anim = 'idle_b', duration = 8000},
-    IVInsertion = {dict = 'amb@medic@standing@tendtodead@base', anim = 'base', duration = 7000},
-    Splinting = {dict = 'amb@prop_human_parking_meter@female@idle_a', anim = 'idle_a_female', duration = 10000}
+Config.UseAnimations = true
+Config.TreatmentAnimations = {
+    examine = {dict = "amb@medic@standing@kneel@base", anim = "base", duration = 5000},
+    bandage = {dict = "amb@medic@standing@kneel@base", anim = "base", duration = 8000},
+    cpr = {dict = "mini@cpr@char_a@cpr_str", anim = "cpr_pumpchest", duration = 3000},
+    inject = {dict = "anim@amb@business@weed@weed_inspecting_high_dry@", anim = "weed_stand_checkingleaves_idle_01_inspector", duration = 4000}
 }
 
 -- ==========================================
--- SOUNDS
+-- SOUND SETTINGS
 -- ==========================================
+Config.UseSounds = true
 Config.Sounds = {
-    Enabled = true,
-    HeartMonitor = true,
-    PainSounds = true,
-    TreatmentSounds = true,
-    Volume = 0.3
+    heartbeat = true,
+    flatline = true,
+    aed_shock = true,
+    pain_moans = true,
+    breathing = true
 }
 
--- ==========================================
--- TRAINING MODE
--- ==========================================
-Config.Training = {
-    Enabled = true,
-    AllowDummyPatients = true,
-    DummyPedModels = {'a_m_m_beach_01', 'a_f_m_beach_01'},
-    RandomInjuries = true
-}
-
--- ==========================================
--- RESPAWN INTEGRATION
--- ==========================================
-Config.Respawn = {
-    Enabled = false, -- Enable death/respawn handling
-    RespawnTime = 300, -- Seconds before respawn option
-    KeepInjuries = false, -- Keep injuries after respawn
-    HospitalSpawn = true -- Spawn at hospital
-}
-
--- ==========================================
--- DEBUG COMMANDS
--- ==========================================
-Config.Commands = {
-    AddInjury = 'addinjury',
-    HealPlayer = 'healplayer',
-    CheckVitals = 'checkvitals',
-    Resupply = 'resupply',
-    SpawnDummy = 'spawndummy',
-    ToggleDebug = 'medebug'
-}
+return Config
