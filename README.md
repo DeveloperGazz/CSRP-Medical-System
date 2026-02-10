@@ -271,3 +271,149 @@ Planned additions:
 - Patient history tracking
 - Ambulance transport effects
 - More UK-specific medications
+
+## 🔐 Security Features
+
+### Admin Command Protection
+The system includes robust admin permission checking:
+- **ACE Permission Support**: Enable `UseAcePermissions = true` in config
+- **Custom ACE Permission**: `csrp.medical.admin` (configurable)
+- **Console Access**: Server console always has admin access
+- **Fallback Mode**: Simple toggle for development/testing
+
+### Recommended Production Setup
+```lua
+Config.Permissions.UseAcePermissions = true
+Config.Permissions.AdminAcePermission = 'csrp.medical.admin'
+```
+
+Then add to your server.cfg:
+```
+add_ace group.admin csrp.medical.admin allow
+```
+
+### Additional Security
+- Input validation on all network events
+- Sanitized NUI callbacks
+- Server-side verification for critical operations
+- No client-side exploits for spawning items
+- Configurable magic numbers prevent hardcoded values
+
+## 🧪 Testing
+
+### Recommended Testing Steps
+1. **Basic Functionality**
+   - Test patient menu (F6)
+   - Test paramedic menu (F7)
+   - Add test injuries with `/addinjury`
+   - Verify vital signs update correctly
+
+2. **Treatment System**
+   - Apply various treatments
+   - Check equipment consumption
+   - Verify resupply at hospitals
+   - Test CPR and defibrillation
+
+3. **Progression System**
+   - Add bleeding injury
+   - Watch vitals deteriorate
+   - Verify shock development
+   - Test cardiac arrest mechanics
+
+4. **Admin Commands**
+   - Test all admin commands
+   - Verify ACE permission restrictions (if enabled)
+   - Check heal functionality
+
+5. **Multi-Player**
+   - Test with multiple players
+   - Verify synchronization
+   - Test paramedic treating other players
+
+### Debug Mode
+Enable detailed logging:
+```lua
+Config.Debug = true
+```
+
+Or use command:
+```
+/medebug
+```
+
+## 📊 Performance
+
+### Optimization Features
+- Configurable update intervals
+- Efficient Lua loops
+- Minimal network traffic
+- Lazy loading of assets
+- No unnecessary calculations
+
+### Recommended Settings
+For optimal performance on busy servers:
+```lua
+Config.VitalSigns.HeartRate.UpdateInterval = 10000  -- 10 seconds
+Config.Progression.ProgressionInterval = 15000      -- 15 seconds
+```
+
+## 🎓 Training & Onboarding
+
+### For Server Admins
+1. Read the configuration guide thoroughly
+2. Customize vital signs ranges for your server
+3. Adjust progression rates to match your playstyle
+4. Set up ACE permissions for admin commands
+5. Configure hospital locations
+
+### For Paramedics
+1. Learn the keybinds (F6 for patient, F7 for paramedic)
+2. Familiarize yourself with the tablet interface
+3. Practice ABCDE assessments
+4. Understand equipment usage and resupply
+5. Know hospital locations
+
+### For Players
+1. Press F6 to check your condition
+2. Look for symptoms (pain, breathing difficulty)
+3. Request help when injured
+4. Follow paramedic instructions
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how:
+
+1. **Fork the repository**
+2. **Create a feature branch**
+3. **Make your changes**
+4. **Test thoroughly**
+5. **Submit a pull request**
+
+### Code Standards
+- Follow existing code style
+- Comment your code
+- Update documentation
+- Add to changelog
+
+## 📜 Version History
+
+### v1.0.1 (Current)
+- ✅ Fixed code review issues
+- ✅ Improved admin security with ACE permissions
+- ✅ Extracted magic numbers to config
+- ✅ Fixed UI event handling
+- ✅ Enhanced documentation
+
+### v1.0.0 (Initial Release)
+- ✅ Complete injury system with 40+ injury types
+- ✅ Full vital signs monitoring
+- ✅ Real-time progression system
+- ✅ UK paramedic treatment options
+- ✅ Equipment charge system
+- ✅ NHS-inspired NUI interface
+- ✅ Admin commands
+- ✅ Hospital resupply system
+
+---
+
+**Made with ❤️ for the FiveM UK RP community**
