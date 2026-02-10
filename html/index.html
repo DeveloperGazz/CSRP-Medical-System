@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRP Medical System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" style="display: none;">
+        <!-- Patient Menu -->
+        <div id="patient-menu" class="menu-container" style="display: none;">
+            <div class="menu-header">
+                <h1>Patient Status</h1>
+                <button class="close-btn" onclick="closeMenu()">×</button>
+            </div>
+            
+            <div class="menu-content">
+                <div class="vitals-panel">
+                    <h2>Vital Signs</h2>
+                    <div class="vital-row">
+                        <span class="vital-label">Heart Rate:</span>
+                        <span class="vital-value" id="hr">--</span>
+                        <span class="vital-unit">BPM</span>
+                    </div>
+                    <div class="vital-row">
+                        <span class="vital-label">Blood Pressure:</span>
+                        <span class="vital-value" id="bp">--/--</span>
+                        <span class="vital-unit">mmHg</span>
+                    </div>
+                    <div class="vital-row">
+                        <span class="vital-label">Oxygen Saturation:</span>
+                        <span class="vital-value" id="spo2">--</span>
+                        <span class="vital-unit">%</span>
+                    </div>
+                    <div class="vital-row">
+                        <span class="vital-label">Respiratory Rate:</span>
+                        <span class="vital-value" id="rr">--</span>
+                        <span class="vital-unit">BPM</span>
+                    </div>
+                    <div class="vital-row">
+                        <span class="vital-label">Temperature:</span>
+                        <span class="vital-value" id="temp">--</span>
+                        <span class="vital-unit">°C</span>
+                    </div>
+                    <div class="vital-row">
+                        <span class="vital-label">Consciousness:</span>
+                        <span class="vital-value" id="consciousness">--</span>
+                    </div>
+                </div>
+                
+                <div class="injuries-panel">
+                    <h2>Current Injuries</h2>
+                    <div id="injuries-list"></div>
+                </div>
+                
+                <div class="actions-panel">
+                    <h2>Actions</h2>
+                    <button class="action-btn" onclick="requestHelp()">Request Help</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paramedic Menu -->
+        <div id="paramedic-menu" class="menu-container" style="display: none;">
+            <div class="menu-header">
+                <h1>Paramedic Tablet</h1>
+                <button class="close-btn" onclick="closeMenu()">×</button>
+            </div>
+            
+            <div class="menu-content paramedic-content">
+                <div class="tab-container">
+                    <button class="tab-btn active" onclick="showTab('patients')">Patients</button>
+                    <button class="tab-btn" onclick="showTab('treatments')">Treatments</button>
+                    <button class="tab-btn" onclick="showTab('equipment')">Equipment</button>
+                </div>
+                
+                <!-- Patients Tab -->
+                <div id="patients-tab" class="tab-content active">
+                    <h2>Nearby Patients</h2>
+                    <div id="patients-list"></div>
+                    
+                    <div id="selected-patient" style="display: none;">
+                        <h3>Patient Assessment</h3>
+                        <div class="patient-vitals" id="patient-vitals"></div>
+                        <div class="patient-injuries" id="patient-injuries"></div>
+                        
+                        <div class="assessment-actions">
+                            <button class="action-btn" onclick="performABCDE()">ABCDE Assessment</button>
+                            <button class="action-btn" onclick="performSecondarySurvey()">Secondary Survey</button>
+                            <button class="action-btn" onclick="checkVitals()">Check Vitals</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Treatments Tab -->
+                <div id="treatments-tab" class="tab-content">
+                    <h2>Available Treatments</h2>
+                    <div class="treatment-categories">
+                        <button class="category-btn" onclick="filterTreatments('airway')">Airway</button>
+                        <button class="category-btn" onclick="filterTreatments('breathing')">Breathing</button>
+                        <button class="category-btn" onclick="filterTreatments('circulation')">Circulation</button>
+                        <button class="category-btn" onclick="filterTreatments('medication')">Medications</button>
+                        <button class="category-btn" onclick="filterTreatments('all')">All</button>
+                    </div>
+                    <div id="treatments-list"></div>
+                </div>
+                
+                <!-- Equipment Tab -->
+                <div id="equipment-tab" class="tab-content">
+                    <h2>Equipment Inventory</h2>
+                    <div id="equipment-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>
