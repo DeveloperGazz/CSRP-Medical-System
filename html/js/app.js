@@ -1,318 +1,633 @@
-// CSRP Medical System - UI JavaScript
+// ==========================================
+// CSRP Medical System - Main App JS
+// ==========================================
 
+let darkMode = localStorage.getItem('csrp-medical-darkmode') === 'true' || false;
 let currentMenu = null;
-let selectedPatient = null;
-let equipmentData = {};
-let treatmentsData = {};
-let currentTreatmentFilter = 'all';
+let patientData = null;
+let equipmentData = null;
 
-// Listen for NUI messages
+// ==========================================
+// UTILITY FUNCTIONS
+// ==========================================
+
+// Safe fetch wrapper with error handling
+async function post(url, data = {}) {
+    try {
+        const response = await fetch(`https://${GetParentResourceName()}/${url}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error(`Fetch error for ${url}:`, error);
+        // Return empty object instead of failing
+        return {};
+    }
+}
+
+// Alternative post method for when fetch fails (dev mode)
+function postNUI(action, data = {}) {
+    if (window.invokeNative) {
+        // In-game
+        return post(action, data);
+    } else {
+        // Browser dev mode
+        console.log(`[DEV] NUI Callback: ${action}`, data);
+        return Promise.resolve({});
+    }
+}
+
+// ==========================================
+// DARK MODE SYSTEM
+// ==========================================
+
+function initDarkMode() {
+    const body = document.body;
+    const toggle = document.getElementById('darkModeToggle');
+    
+    if (darkMode) {
+        body.classList.add('dark-mode');
+        if (toggle) toggle.checked = true;
+    }
+    
+    if (toggle) {
+        toggle.addEventListener('change', toggleDarkMode);
+    }
+}
+
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('csrp-medical-darkmode', darkMode);
+    
+    // Notify Lua side
+    postNUI('darkModeChanged', { enabled: darkMode });
+}
+
+// ==========================================
+// MENU SYSTEM
+// ==========================================
+
+function openMenu(menuType, data) {
+    currentMenu = menuType;
+    
+    // Hide all menus first
+    document.querySelectorAll('.menu-container').forEach(menu => {
+        menu.style.display = 'none';
+    });
+    
+    // Show requested menu
+    const menu = document.getElementById(`${menuType}Menu`);
+    if (menu) {
+        menu.style.display = 'flex';
+        
+        // Populate menu based on type
+        switch(menuType) {
+            case 'patient':
+                populatePatientMenu(data);
+                break;
+            case 'paramedic':
+                populateParamedicMenu(data);
+                break;
+            case 'mci':
+                populateMCIMenu(data);
+                break;
+            case 'equipment':
+                populateEquipmentMenu(data);
+                break;
+        }
+    }
+}
+
+function closeMenu() {
+    document.querySelectorAll('.menu-container').forEach(menu => {
+        menu.style.display = 'none';
+    });
+    currentMenu = null;
+    
+    // Notify Lua
+    postNUI('closeMenu', {});
+}
+
+// ==========================================
+// PATIENT MENU
+// ==========================================
+
+function populatePatientMenu(data) {
+    patientData = data;
+    
+    // Update vitals display
+    updateVitalsDisplay('patient', data.vitals);
+    
+    // Update injuries list
+    const injuriesList = document.getElementById('patientInjuriesList');
+    if (injuriesList) {
+        injuriesList.innerHTML = '';
+        
+        if (data.injuries && data.injuries.length > 0) {
+            data.injuries.forEach(injury => {
+                const injuryCard = createInjuryCard(injury);
+                injuriesList.appendChild(injuryCard);
+            });
+        } else {
+            injuriesList.innerHTML = '<div class="no-injuries">No injuries detected</div>';
+        }
+    }
+    
+    // Update pain level
+    const painLevel = document.getElementById('painLevel');
+    const painBar = document.getElementById('painBar');
+    if (painLevel && painBar && data.pain) {
+        painLevel.textContent = `${data.pain}%`;
+        painBar.style.width = `${data.pain}%`;
+        painBar.className = 'pain-bar ' + getPainClass(data.pain);
+    }
+    
+    // Update condition
+    const conditionText = document.getElementById('conditionText');
+    if (conditionText && data.condition) {
+        conditionText.textContent = data.condition;
+        conditionText.className = 'condition-text ' + getConditionClass(data.condition);
+    }
+}
+
+function createInjuryCard(injury) {
+    const card = document.createElement('div');
+    card.className = 'injury-card severity-' + injury.severity;
+    
+    card.innerHTML = `
+        <div class="injury-header">
+            <div class="injury-icon">
+                <i class="${getInjuryIcon(injury.type)}"></i>
+            </div>
+            <div class="injury-info">
+                <h3>${injury.name}</h3>
+                <span class="injury-location">${injury.bodyZone}</span>
+            </div>
+            <div class="injury-severity">
+                <span class="severity-badge ${injury.severity}">${injury.severity}</span>
+            </div>
+        </div>
+        <div class="injury-body">
+            <div class="injury-symptoms">
+                ${injury.symptoms ? injury.symptoms.map(s => `<span class="symptom-tag">${s}</span>`).join('') : ''}
+            </div>
+            ${injury.treatments && injury.treatments.length > 0 ? `
+                <div class="injury-treatments">
+                    <strong>Applied Treatments:</strong>
+                    <ul>
+                        ${injury.treatments.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    return card;
+}
+
+// ==========================================
+// PARAMEDIC MENU
+// ==========================================
+
+function populateParamedicMenu(data) {
+    patientData = data.patient;
+    equipmentData = data.equipment;
+    
+    // Update patient info header
+    updatePatientHeader(data.patient);
+    
+    // Update vitals
+    updateVitalsDisplay('paramedic', data.patient.vitals);
+    
+    // Update body map
+    updateBodyMap(data.patient.injuries);
+    
+    // Update injury list
+    updateParamedicInjuryList(data.patient.injuries);
+    
+    // Update equipment inventory
+    updateEquipmentInventory(data.equipment);
+    
+    // Update assessment checklist
+    updateAssessmentChecklist(data.patient.assessments);
+}
+
+function updatePatientHeader(patient) {
+    const header = document.getElementById('patientHeader');
+    if (!header) return;
+    
+    header.innerHTML = `
+        <div class="patient-basic-info">
+            <h2>${patient.name || 'Unknown Patient'}</h2>
+            <span class="patient-id">ID: ${patient.id || 'N/A'}</span>
+        </div>
+        <div class="patient-status">
+            <div class="consciousness-badge ${getConsciousnessClass(patient.consciousness)}">
+                ${patient.consciousness || 'Unknown'}
+            </div>
+            <div class="priority-badge ${patient.priority ? 'priority-' + patient.priority : ''}">
+                ${patient.priority ? 'P' + patient.priority : 'Not Triaged'}
+            </div>
+        </div>
+    `;
+}
+
+function updateVitalsDisplay(context, vitals) {
+    if (!vitals) return;
+    
+    const prefix = context === 'paramedic' ? 'para' : 'patient';
+    
+    // Heart Rate
+    updateVitalElement(`${prefix}HeartRate`, vitals.heartRate, 'bpm', getHRClass(vitals.heartRate));
+    
+    // Blood Pressure
+    const bpElement = document.getElementById(`${prefix}BloodPressure`);
+    if (bpElement) {
+        bpElement.textContent = `${vitals.bpSystolic}/${vitals.bpDiastolic}`;
+        bpElement.className = 'vital-value ' + getBPClass(vitals.bpSystolic);
+    }
+    
+    // Respiratory Rate
+    updateVitalElement(`${prefix}RespiratoryRate`, vitals.respiratoryRate, '/min', getRRClass(vitals.respiratoryRate));
+    
+    // SpO2
+    updateVitalElement(`${prefix}SpO2`, vitals.spo2, '%', getSpO2Class(vitals.spo2));
+    
+    // Temperature
+    updateVitalElement(`${prefix}Temperature`, vitals.temperature, '°C', getTempClass(vitals.temperature));
+    
+    // Update vital trend arrows if available
+    if (vitals.trends) {
+        updateVitalTrends(prefix, vitals.trends);
+    }
+}
+
+function updateVitalElement(elementId, value, unit, className) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = value ? `${value} ${unit}` : 'N/A';
+        element.className = 'vital-value ' + className;
+    }
+}
+
+function updateBodyMap(injuries) {
+    // Clear previous highlights
+    document.querySelectorAll('.body-part').forEach(part => {
+        part.className = 'body-part';
+    });
+    
+    // Highlight injured body parts
+    if (injuries && injuries.length > 0) {
+        injuries.forEach(injury => {
+            const bodyPart = document.getElementById(`bodyPart-${injury.bodyZone}`);
+            if (bodyPart) {
+                bodyPart.classList.add('injured');
+                bodyPart.classList.add('severity-' + injury.severity);
+                
+                // Add click handler
+                bodyPart.onclick = () => showInjuryDetails(injury);
+            }
+        });
+    }
+}
+
+function updateParamedicInjuryList(injuries) {
+    const list = document.getElementById('paramedicInjuryList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    
+    if (!injuries || injuries.length === 0) {
+        list.innerHTML = '<div class="no-injuries">No injuries detected - Complete assessment</div>';
+        return;
+    }
+    
+    injuries.forEach((injury, index) => {
+        const injuryRow = document.createElement('div');
+        injuryRow.className = 'injury-row severity-' + injury.severity;
+        injuryRow.innerHTML = `
+            <div class="injury-number">${index + 1}</div>
+            <div class="injury-details">
+                <strong>${injury.name}</strong>
+                <span class="injury-zone">${injury.bodyZone}</span>
+            </div>
+            <div class="injury-severity-badge ${injury.severity}">${injury.severity}</div>
+            <button class="btn-treat" onclick="openTreatmentMenu(${index})">Treat</button>
+        `;
+        list.appendChild(injuryRow);
+    });
+}
+
+function updateEquipmentInventory(equipment) {
+    const inventory = document.getElementById('equipmentInventory');
+    if (!inventory || !equipment) return;
+    
+    inventory.innerHTML = '';
+    
+    Object.keys(equipment).forEach(itemKey => {
+        const item = equipment[itemKey];
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'equipment-item';
+        
+        const percentage = (item.current / item.max) * 100;
+        let statusClass = 'good';
+        if (percentage < 25) statusClass = 'critical';
+        else if (percentage < 50) statusClass = 'low';
+        
+        itemDiv.innerHTML = `
+            <div class="equipment-icon">
+                <i class="${getEquipmentIcon(itemKey)}"></i>
+            </div>
+            <div class="equipment-info">
+                <span class="equipment-name">${item.name}</span>
+                <div class="equipment-bar">
+                    <div class="equipment-bar-fill ${statusClass}" style="width: ${percentage}%"></div>
+                </div>
+                <span class="equipment-count">${item.current} / ${item.max}</span>
+            </div>
+        `;
+        
+        inventory.appendChild(itemDiv);
+    });
+}
+
+function updateAssessmentChecklist(assessments) {
+    const checklist = document.getElementById('assessmentChecklist');
+    if (!checklist || !assessments) return;
+    
+    const checks = [
+        {key: 'airway', label: 'Airway Clear'},
+        {key: 'breathing', label: 'Breathing Assessed'},
+        {key: 'circulation', label: 'Circulation Checked'},
+        {key: 'disability', label: 'Disability/Neuro'},
+        {key: 'exposure', label: 'Exposure/Environment'}
+    ];
+    
+    checklist.innerHTML = checks.map(check => `
+        <div class="assessment-check ${assessments[check.key] ? 'completed' : ''}">
+            <i class="fas fa-${assessments[check.key] ? 'check-circle' : 'circle'}"></i>
+            <span>${check.label}</span>
+        </div>
+    `).join('');
+}
+
+// ==========================================
+// MCI (MULTI-CASUALTY INCIDENT) MENU
+// ==========================================
+
+function populateMCIMenu(data) {
+    const patientGrid = document.getElementById('mciPatientGrid');
+    if (!patientGrid || !data.patients) return;
+    
+    patientGrid.innerHTML = '';
+    
+    data.patients.forEach(patient => {
+        const card = document.createElement('div');
+        card.className = `mci-patient-card priority-${patient.priority || 'none'}`;
+        card.innerHTML = `
+            <div class="mci-card-header">
+                <span class="mci-patient-name">${patient.name || 'Unknown'}</span>
+                <span class="mci-priority-badge ${patient.priority ? 'P' + patient.priority : ''}">${patient.priority ? 'P' + patient.priority : 'Not Triaged'}</span>
+            </div>
+            <div class="mci-card-body">
+                <div class="mci-vitals-mini">
+                    <span>HR: ${patient.vitals.heartRate || '?'}</span>
+                    <span>BP: ${patient.vitals.bpSystolic || '?'}/${patient.vitals.bpDiastolic || '?'}</span>
+                    <span>SpO2: ${patient.vitals.spo2 || '?'}%</span>
+                </div>
+                <div class="mci-injury-count">${patient.injuryCount || 0} injuries</div>
+            </div>
+            <div class="mci-card-footer">
+                <button class="btn-mci-assess" onclick="assessMCIPatient(${patient.id})">Assess</button>
+                <button class="btn-mci-triage" onclick="triageMCIPatient(${patient.id})">Triage</button>
+            </div>
+        `;
+        patientGrid.appendChild(card);
+    });
+}
+
+// ==========================================
+// TREATMENT ACTIONS
+// ==========================================
+
+function openTreatmentMenu(injuryIndex) {
+    postNUI('openTreatmentMenu', { injuryIndex: injuryIndex });
+}
+
+function performTreatment(treatmentType, injuryIndex) {
+    postNUI('performTreatment', { 
+        treatment: treatmentType, 
+        injuryIndex: injuryIndex 
+    });
+}
+
+function administerMedication(medicationType) {
+    postNUI('administerMedication', { medication: medicationType });
+}
+
+function performAssessment(assessmentType) {
+    postNUI('performAssessment', { assessment: assessmentType });
+}
+
+// ==========================================
+// MCI ACTIONS
+// ========================================== 
+
+function assessMCIPatient(patientId) {
+    postNUI('assessMCIPatient', { patientId: patientId });
+}
+
+function triageMCIPatient(patientId) {
+    postNUI('triageMCIPatient', { patientId: patientId });
+}
+
+function setMCIPriority(patientId, priority) {
+    postNUI('setMCIPriority', { patientId: patientId, priority: priority });
+}
+
+// ==========================================
+// UTILITY FUNCTIONS FOR STYLING
+// ==========================================
+
+function getHRClass(hr) {
+    if (hr === 0) return 'critical';
+    if (hr < 40 || hr > 150) return 'critical';
+    if (hr < 60 || hr > 100) return 'warning';
+    return 'normal';
+}
+
+function getBPClass(systolic) {
+    if (systolic < 70) return 'critical';
+    if (systolic < 90) return 'warning';
+    if (systolic > 140) return 'warning';
+    return 'normal';
+}
+
+function getRRClass(rr) {
+    if (rr === 0) return 'critical';
+    if (rr < 8 || rr > 30) return 'critical';
+    if (rr < 12 || rr > 20) return 'warning';
+    return 'normal';
+}
+
+function getSpO2Class(spo2) {
+    if (spo2 < 85) return 'critical';
+    if (spo2 < 90) return 'warning';
+    return 'normal';
+}
+
+function getTempClass(temp) {
+    if (temp < 32 || temp > 40) return 'critical';
+    if (temp < 35 || temp > 38.5) return 'warning';
+    return 'normal';
+}
+
+function getPainClass(pain) {
+    if (pain >= 80) return 'critical';
+    if (pain >= 50) return 'warning';
+    return 'normal';
+}
+
+function getConditionClass(condition) {
+    const lower = condition.toLowerCase();
+    if (lower.includes('critical') || lower.includes('unstable')) return 'critical';
+    if (lower.includes('serious') || lower.includes('moderate')) return 'warning';
+    return 'normal';
+}
+
+function getConsciousnessClass(consciousness) {
+    const lower = consciousness ? consciousness.toLowerCase() : '';
+    if (lower.includes('unresponsive')) return 'critical';
+    if (lower.includes('pain') || lower.includes('voice')) return 'warning';
+    return 'normal';
+}
+
+function getInjuryIcon(type) {
+    const icons = {
+        'blunt': 'fas fa-hand-rock',
+        'penetrating': 'fas fa-syringe',
+        'burns': 'fas fa-fire',
+        'medical': 'fas fa-heartbeat',
+        'environmental': 'fas fa-temperature-high',
+        'internal': 'fas fa-lungs'
+    };
+    return icons[type] || 'fas fa-exclamation-triangle';
+}
+
+function getEquipmentIcon(key) {
+    const icons = {
+        'bandage': 'fas fa-band-aid',
+        'tourniquet': 'fas fa-slash',
+        'splint': 'fas fa-bone',
+        'oxygen': 'fas fa-wind',
+        'iv': 'fas fa-tint',
+        'medication': 'fas fa-pills'
+    };
+    return icons[key] || 'fas fa-medkit';
+}
+
+// ==========================================
+// NUI MESSAGE HANDLER
+// ==========================================
+
 window.addEventListener('message', (event) => {
     const data = event.data;
     
-    switch(data.type) {
-        case 'toggleUI':
-            toggleUI(data.show, data.menu, data.data);
+    switch(data.action) {
+        case 'openMenu':
+            openMenu(data.menuType, data.data);
+            break;
+        case 'closeMenu':
+            closeMenu();
             break;
         case 'updateVitals':
-            updateVitals(data.vitals);
+            if (currentMenu === 'patient') {
+                updateVitalsDisplay('patient', data.vitals);
+            } else if (currentMenu === 'paramedic') {
+                updateVitalsDisplay('paramedic', data.vitals);
+            }
+            break;
+        case 'updateInjuries':
+            if (currentMenu === 'patient') {
+                populatePatientMenu(data);
+            } else if (currentMenu === 'paramedic') {
+                updateParamedicInjuryList(data.injuries);
+            }
+            break;
+        case 'updateEquipment':
+            updateEquipmentInventory(data.equipment);
+            break;
+        case 'showNotification':
+            showNotification(data.message, data.type);
             break;
     }
 });
 
-// Toggle UI visibility
-function toggleUI(show, menu, data) {
-    const app = document.getElementById('app');
-    const patientMenu = document.getElementById('patient-menu');
-    const paramedicMenu = document.getElementById('paramedic-menu');
-    
-    if (show) {
-        app.style.display = 'flex';
-        currentMenu = menu;
-        
-        if (menu === 'patient') {
-            patientMenu.style.display = 'block';
-            paramedicMenu.style.display = 'none';
-            
-            if (data.vitals) {
-                updateVitals(data.vitals);
-            }
-            if (data.injuries) {
-                updateInjuries(data.injuries);
-            }
-        } else if (menu === 'paramedic') {
-            patientMenu.style.display = 'none';
-            paramedicMenu.style.display = 'block';
-            
-            if (data.equipment) {
-                equipmentData = data.equipment;
-                updateEquipment(data.equipment);
-            }
-            if (data.treatments) {
-                treatmentsData = data.treatments;
-                updateTreatments(data.treatments);
-            }
-            if (data.nearbyPlayers) {
-                updatePatientsList(data.nearbyPlayers);
-            }
-        }
-    } else {
-        app.style.display = 'none';
-        patientMenu.style.display = 'none';
-        paramedicMenu.style.display = 'none';
-    }
-}
+// ==========================================
+// KEYBOARD HANDLER
+// ==========================================
 
-// Update vitals display
-function updateVitals(vitals) {
-    if (!vitals) return;
-    
-    document.getElementById('hr').textContent = Math.round(vitals.heartRate || 0);
-    document.getElementById('bp').textContent = 
-        Math.round(vitals.bloodPressureSystolic || 0) + '/' + 
-        Math.round(vitals.bloodPressureDiastolic || 0);
-    document.getElementById('spo2').textContent = Math.round(vitals.oxygenSaturation || 0);
-    document.getElementById('rr').textContent = Math.round(vitals.respiratoryRate || 0);
-    document.getElementById('temp').textContent = (vitals.temperature || 0).toFixed(1);
-    
-    const consciousnessLevels = ['Unresponsive', 'Pain', 'Voice', 'Alert'];
-    document.getElementById('consciousness').textContent = 
-        consciousnessLevels[Math.min(3, Math.max(0, (vitals.consciousness || 4) - 1))];
-    
-    // Color code vitals
-    colorCodeVital('hr', vitals.heartRate, 60, 100, 40, 150);
-    colorCodeVital('spo2', vitals.oxygenSaturation, 95, 100, 85, 94);
-    colorCodeVital('temp', vitals.temperature, 36.1, 37.2, 35, 38);
-}
-
-// Color code vital sign
-function colorCodeVital(elementId, value, normalMin, normalMax, criticalMin, criticalMax) {
-    const element = document.getElementById(elementId);
-    element.classList.remove('normal', 'warning', 'critical');
-    
-    if (value >= normalMin && value <= normalMax) {
-        element.classList.add('normal');
-    } else if (value >= criticalMin && value <= criticalMax) {
-        element.classList.add('warning');
-    } else {
-        element.classList.add('critical');
-    }
-}
-
-// Update injuries list
-function updateInjuries(injuries) {
-    const injuriesList = document.getElementById('injuries-list');
-    
-    if (!injuries || injuries.length === 0) {
-        injuriesList.innerHTML = '<p style="color: #666;">No injuries detected</p>';
-        return;
-    }
-    
-    let html = '';
-    injuries.forEach(injury => {
-        const severityClass = ['minor', 'moderate', 'severe', 'critical'][injury.severity - 1] || 'moderate';
-        const severityText = ['Minor', 'Moderate', 'Severe', 'Critical'][injury.severity - 1] || 'Moderate';
-        
-        html += `
-            <div class="injury-item">
-                <div class="injury-name">
-                    ${injury.type.replace(/_/g, ' ').toUpperCase()}
-                    <span class="injury-severity severity-${severityClass}">${severityText}</span>
-                </div>
-                <div class="injury-details">
-                    Location: ${injury.zone.replace(/_/g, ' ').toUpperCase()}
-                    ${injury.bleeding > 0 ? ' - Bleeding: ' + Math.round(injury.bleeding) + '%' : ''}
-                </div>
-            </div>
-        `;
-    });
-    
-    injuriesList.innerHTML = html;
-}
-
-// Update patients list
-function updatePatientsList(patients) {
-    const patientsList = document.getElementById('patients-list');
-    
-    if (!patients || patients.length === 0) {
-        patientsList.innerHTML = '<p style="color: #666; padding: 20px;">No patients nearby</p>';
-        return;
-    }
-    
-    let html = '';
-    patients.forEach(patient => {
-        html += `
-            <div class="patient-card" onclick="selectPatient(${patient.serverId}, '${patient.name}')">
-                <div class="patient-name">${patient.name}</div>
-                <div class="patient-distance">Distance: ${patient.distance}m</div>
-            </div>
-        `;
-    });
-    
-    patientsList.innerHTML = html;
-}
-
-// Select patient
-function selectPatient(serverId, name) {
-    selectedPatient = serverId;
-    document.getElementById('selected-patient').style.display = 'block';
-    
-    // Request patient vitals
-    fetch(`https://csrp_medical/checkVitals`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({targetId: serverId})
-    });
-}
-
-// Update treatments list
-function updateTreatments(treatments) {
-    const treatmentsList = document.getElementById('treatments-list');
-    
-    let html = '';
-    for (const [id, treatment] of Object.entries(treatments)) {
-        if (currentTreatmentFilter !== 'all' && treatment.category !== currentTreatmentFilter) {
-            continue;
-        }
-        
-        const hasEquipment = !treatment.uses_equipment || 
-            (equipmentData[treatment.equipment] && equipmentData[treatment.equipment] > 0);
-        
-        html += `
-            <div class="treatment-card">
-                <div class="treatment-name">${treatment.name}</div>
-                <div class="treatment-description">${treatment.description}</div>
-                <button class="treatment-btn" 
-                    onclick="applyTreatment('${id}')" 
-                    ${!hasEquipment || !selectedPatient ? 'disabled' : ''}>
-                    Apply Treatment
-                </button>
-            </div>
-        `;
-    }
-    
-    treatmentsList.innerHTML = html || '<p style="color: #666; padding: 20px;">No treatments available</p>';
-}
-
-// Filter treatments
-function filterTreatments(category, eventTarget) {
-    currentTreatmentFilter = category;
-    
-    // Update active button
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    if (eventTarget) {
-        eventTarget.classList.add('active');
-    }
-    
-    updateTreatments(treatmentsData);
-}
-
-// Update equipment display
-function updateEquipment(equipment) {
-    const equipmentList = document.getElementById('equipment-list');
-    
-    let html = '';
-    for (const [name, quantity] of Object.entries(equipment)) {
-        let quantityClass = '';
-        if (quantity === 0) quantityClass = 'empty';
-        else if (quantity <= 2) quantityClass = 'low';
-        
-        html += `
-            <div class="equipment-item">
-                <span class="equipment-name">${name.replace(/([A-Z])/g, ' $1').trim()}</span>
-                <span class="equipment-quantity ${quantityClass}">${quantity}</span>
-            </div>
-        `;
-    }
-    
-    equipmentList.innerHTML = html;
-}
-
-// Tab switching
-function showTab(tabName, eventTarget) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    if (eventTarget) {
-        eventTarget.classList.add('active');
-    }
-    document.getElementById(tabName + '-tab').classList.add('active');
-}
-
-// Close menu
-function closeMenu() {
-    fetch(`https://csrp_medical/close`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({})
-    });
-}
-
-// Request help
-function requestHelp() {
-    // This would trigger a distress call
-    alert('Help request sent to nearby paramedics!');
-}
-
-// Apply treatment
-function applyTreatment(treatmentId) {
-    if (!selectedPatient) {
-        alert('No patient selected');
-        return;
-    }
-    
-    fetch(`https://csrp_medical/applyTreatment`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            targetId: selectedPatient,
-            treatmentId: treatmentId
-        })
-    });
-}
-
-// Perform ABCDE
-function performABCDE() {
-    if (!selectedPatient) return;
-    
-    fetch(`https://csrp_medical/performABCDE`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({targetId: selectedPatient})
-    });
-}
-
-// Perform secondary survey
-function performSecondarySurvey() {
-    if (!selectedPatient) return;
-    
-    fetch(`https://csrp_medical/performSecondarySurvey`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({targetId: selectedPatient})
-    });
-}
-
-// Check vitals
-function checkVitals() {
-    if (!selectedPatient) return;
-    
-    fetch(`https://csrp_medical/checkVitals`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({targetId: selectedPatient})
-    });
-}
-
-// ESC key to close
-document.addEventListener('keyup', (e) => {
-    if (e.key === 'Escape') {
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
         closeMenu();
+    }
+});
+
+// ==========================================
+// NOTIFICATION SYSTEM
+// ==========================================
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// ==========================================
+// RESUPPLY SYSTEM
+// ==========================================
+
+function requestResupply() {
+    postNUI('requestResupply', {});
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('CSRP Medical System UI Loaded');
+    initDarkMode();
+    
+    // Setup close buttons
+    document.querySelectorAll('.close-menu-btn').forEach(btn => {
+        btn.addEventListener('click', closeMenu);
+    });
+    
+    // Setup resupply button
+    const resupplyBtn = document.getElementById('resupplyBtn');
+    if (resupplyBtn) {
+        resupplyBtn.addEventListener('click', requestResupply);
     }
 });
