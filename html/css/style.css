@@ -1,0 +1,436 @@
+/* CSRP Medical System - NHS Inspired UI */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: transparent;
+    overflow: hidden;
+}
+
+#app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.menu-container {
+    background: linear-gradient(135deg, #005EB8 0%, #003d82 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow: hidden;
+    pointer-events: all;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-header {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #41B6E6;
+}
+
+.menu-header h1 {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: #DA291C;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    background: #b51f15;
+    transform: rotate(90deg);
+}
+
+.menu-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(85vh - 84px);
+    background: white;
+}
+
+/* Vitals Panel */
+.vitals-panel {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.vitals-panel h2 {
+    color: #005EB8;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.vital-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border-radius: 5px;
+    border-left: 4px solid #005EB8;
+}
+
+.vital-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.vital-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #005EB8;
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.vital-unit {
+    color: #666;
+    min-width: 60px;
+    text-align: right;
+}
+
+.vital-value.critical {
+    color: #DA291C;
+}
+
+.vital-value.warning {
+    color: #FFB81C;
+}
+
+.vital-value.normal {
+    color: #009639;
+}
+
+/* Injuries Panel */
+.injuries-panel {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.injuries-panel h2 {
+    color: #005EB8;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.injury-item {
+    background: white;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border-left: 4px solid #DA291C;
+}
+
+.injury-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.injury-details {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.injury-severity {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.severity-minor {
+    background: #FFB81C;
+    color: white;
+}
+
+.severity-moderate {
+    background: #FF6600;
+    color: white;
+}
+
+.severity-severe {
+    background: #DA291C;
+    color: white;
+}
+
+.severity-critical {
+    background: #8B0000;
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Actions Panel */
+.actions-panel {
+    margin-top: 20px;
+}
+
+.actions-panel h2 {
+    color: #005EB8;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.action-btn {
+    background: #005EB8;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 5px;
+}
+
+.action-btn:hover {
+    background: #003d82;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 94, 184, 0.3);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Paramedic Menu */
+.paramedic-content {
+    padding: 0;
+}
+
+.tab-container {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #005EB8;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: rgba(0, 94, 184, 0.1);
+}
+
+.tab-btn.active {
+    background: white;
+    color: #005EB8;
+    border-bottom: 3px solid #005EB8;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Patient List */
+.patient-card {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid #005EB8;
+}
+
+.patient-card:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.patient-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.patient-distance {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Treatment List */
+.treatment-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.category-btn {
+    background: #f8f9fa;
+    border: 2px solid #005EB8;
+    color: #005EB8;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-btn:hover,
+.category-btn.active {
+    background: #005EB8;
+    color: white;
+}
+
+.treatment-card {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border-left: 4px solid #009639;
+}
+
+.treatment-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.treatment-description {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.treatment-btn {
+    background: #009639;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.treatment-btn:hover {
+    background: #007a2d;
+}
+
+.treatment-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Equipment List */
+.equipment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 5px;
+}
+
+.equipment-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.equipment-quantity {
+    background: #005EB8;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.equipment-quantity.low {
+    background: #FFB81C;
+}
+
+.equipment-quantity.empty {
+    background: #DA291C;
+}
+
+/* Scrollbar */
+.menu-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.menu-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.menu-content::-webkit-scrollbar-thumb {
+    background: #005EB8;
+    border-radius: 4px;
+}
+
+.menu-content::-webkit-scrollbar-thumb:hover {
+    background: #003d82;
+}
