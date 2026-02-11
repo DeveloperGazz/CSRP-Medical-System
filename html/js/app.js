@@ -37,7 +37,9 @@ async function post(url, data = {}) {
         
         return await response.json();
     } catch (error) {
-        console.error(`Fetch error for ${url}:`, error);
+        // Prevent circular reference issues during error formatting/stringification
+        const errorMsg = error && error.message ? error.message : String(error);
+        console.error(`Fetch error for ${url}: ${errorMsg}`);
         // Return empty object instead of failing
         return {};
     }

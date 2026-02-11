@@ -19,7 +19,12 @@ Citizen.CreateThread(function()
     -- Initialize equipment if paramedic
     if Config.Permissions.UseParamedicMenu then
         isParamedic = true
-        paramedicEquipment = Equipment.Initialize()
+        if Equipment and Equipment.Initialize then
+            paramedicEquipment = Equipment.Initialize()
+        else
+            print('[CSRP Medical] ERROR: Equipment module not loaded. Check that modules/equipment.lua is loaded before client scripts in fxmanifest.lua')
+            paramedicEquipment = {}
+        end
     end
     
     -- Start vital signs update thread
@@ -72,10 +77,12 @@ Citizen.CreateThread(function()
                         DisplayHelpText('Press ~INPUT_CONTEXT~ to resupply equipment')
                         
                         if IsControlJustReleased(0, 38) then -- E key
-                            paramedicEquipment = Equipment.Resupply(paramedicEquipment)
-                            TriggerEvent('chat:addMessage', {
-                                args = {'Medical System', 'Equipment resupplied'}
-                            })
+                            if Equipment and Equipment.Resupply then
+                                paramedicEquipment = Equipment.Resupply(paramedicEquipment)
+                                TriggerEvent('chat:addMessage', {
+                                    args = {'Medical System', 'Equipment resupplied'}
+                                })
+                            end
                         end
                     end
                 end
