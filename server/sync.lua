@@ -64,3 +64,26 @@ AddEventHandler('csrp_medical:requestFullAssessment', function(targetId)
     local source = source
     TriggerClientEvent('csrp_medical:sendFullAssessment', targetId, source)
 end)
+
+-- Request patient data for paramedic menu
+RegisterNetEvent('csrp_medical:requestPatientData')
+AddEventHandler('csrp_medical:requestPatientData', function(targetId)
+    local source = source
+    
+    if Config.Debug then
+        print('[CSRP Medical] Player ' .. source .. ' requesting data for patient ' .. targetId)
+    end
+    
+    -- Request patient to send their data to the paramedic
+    TriggerClientEvent('csrp_medical:sendPatientData', targetId, source)
+end)
+
+-- Relay patient data back to paramedic
+RegisterNetEvent('csrp_medical:sendPatientDataToParamedic')
+AddEventHandler('csrp_medical:sendPatientDataToParamedic', function(paramedicId, patientData)
+    if Config.Debug then
+        print('[CSRP Medical] Sending patient data to paramedic ' .. paramedicId)
+    end
+    
+    TriggerClientEvent('csrp_medical:receivePatientData', paramedicId, patientData)
+end)

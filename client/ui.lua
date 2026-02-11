@@ -44,7 +44,7 @@ function ToggleParamedicMenu()
             action = 'openMenu',
             menuType = 'paramedic',
             data = {
-                equipment = GetParamedicEquipment(),
+                equipment = FormatEquipmentForNUI(GetParamedicEquipment()),
                 nearbyPlayers = nearbyPlayers,
                 treatments = Treatments.Definitions
             }
@@ -54,6 +54,37 @@ function ToggleParamedicMenu()
             action = 'closeMenu'
         })
     end
+end
+
+-- Format equipment for NUI display
+function FormatEquipmentForNUI(equipment)
+    local formatted = {}
+    
+    if not equipment then
+        return formatted
+    end
+    
+    for key, value in pairs(equipment) do
+        -- Always use Config.Equipment for max value to ensure accuracy
+        local maxValue = 0
+        if Config.Equipment and Config.Equipment[key] then
+            maxValue = Config.Equipment[key]
+        else
+            if Config.Debug then
+                print('[CSRP Medical] Warning: Equipment type "' .. key .. '" not found in Config.Equipment')
+            end
+            -- Use current value as fallback for unknown equipment types
+            maxValue = value
+        end
+        
+        formatted[key] = {
+            name = key,
+            current = value,
+            max = maxValue
+        }
+    end
+    
+    return formatted
 end
 
 -- Get nearby players
@@ -150,4 +181,40 @@ RegisterNUICallback('defibrillate', function(data, cb)
     else
         cb('error')
     end
+end)
+
+RegisterNUICallback('selectPatient', function(data, cb)
+    if data.patientId then
+        -- Request patient data from server
+        TriggerServerEvent('csrp_medical:requestPatientData', data.patientId)
+        cb('ok')
+    else
+        cb('error')
+    end
+end)
+
+-- Network event handlers
+
+-- When paramedic requests this player's data
+RegisterNetEvent('csrp_medical:sendPatientData')
+AddEventHandler('csrp_medical:sendPatientData', function(paramedicId)
+    local playerData = {
+        injuries = GetInjuriesForNUI(),
+        vitals = GetPlayerVitals(),
+        name = GetPlayerName(PlayerId()),
+        id = GetPlayerServerId(PlayerId())
+    }
+    
+    -- Send data back to the requesting paramedic
+    TriggerServerEvent('csrp_medical:sendPatientDataToParamedic', paramedicId, playerData)
+end)
+
+-- When paramedic receives patient data
+RegisterNetEvent('csrp_medical:receivePatientData')
+AddEventHandler('csrp_medical:receivePatientData', function(patientData)
+    -- Update the paramedic's NUI with patient information
+    SendNUIMessage({
+        action = 'updatePatientData',
+        patient = patientData
+    })
 end)
