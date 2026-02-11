@@ -6,6 +6,7 @@ let darkMode = localStorage.getItem('csrp-medical-darkmode') === 'true' || false
 let currentMenu = null;
 let patientData = null;
 let equipmentData = null;
+let appElement = null;
 
 // ==========================================
 // UTILITY FUNCTIONS
@@ -80,6 +81,11 @@ function toggleDarkMode() {
 function openMenu(menuType, data) {
     currentMenu = menuType;
     
+    // Show app container
+    if (appElement) {
+        appElement.style.display = 'flex';
+    }
+    
     // Hide all menus first
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
@@ -112,6 +118,12 @@ function closeMenu() {
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
+    
+    // Hide app container
+    if (appElement) {
+        appElement.style.display = 'none';
+    }
+    
     currentMenu = null;
     
     // Notify Lua
@@ -618,6 +630,10 @@ function requestResupply() {
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('CSRP Medical System UI Loaded');
+    
+    // Cache app element reference
+    appElement = document.getElementById('app');
+    
     initDarkMode();
     
     // Setup close buttons
