@@ -82,7 +82,7 @@ function GetNearbyPlayers(radius)
 end
 
 -- NUI Callbacks
-RegisterNUICallback('close', function(data, cb)
+RegisterNUICallback('closeMenu', function(data, cb)
     uiOpen = false
     currentMenu = nil
     SetNuiFocus(false, false)
