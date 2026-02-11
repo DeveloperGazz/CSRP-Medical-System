@@ -326,67 +326,101 @@ function updateVitalsDisplay(context, vitals) {
         // Heart Rate
         const hrElement = document.getElementById('hr');
         if (hrElement) {
-            hrElement.textContent = vitals.heartRate || '--';
+            const heartRate = (vitals.heartRate !== undefined && vitals.heartRate !== null) ? vitals.heartRate : '--';
+            hrElement.textContent = heartRate;
             hrElement.className = 'vital-value ' + getHRClass(vitals.heartRate);
         }
         
         // Blood Pressure  
         const bpElement = document.getElementById('bp');
         if (bpElement) {
-            const systolic = vitals.bpSystolic || vitals.bloodPressureSystolic || '--';
-            const diastolic = vitals.bpDiastolic || vitals.bloodPressureDiastolic || '--';
+            const systolic = (vitals.bpSystolic !== undefined && vitals.bpSystolic !== null) 
+                ? vitals.bpSystolic 
+                : (vitals.bloodPressureSystolic !== undefined && vitals.bloodPressureSystolic !== null) 
+                    ? vitals.bloodPressureSystolic 
+                    : '--';
+            const diastolic = (vitals.bpDiastolic !== undefined && vitals.bpDiastolic !== null) 
+                ? vitals.bpDiastolic 
+                : (vitals.bloodPressureDiastolic !== undefined && vitals.bloodPressureDiastolic !== null) 
+                    ? vitals.bloodPressureDiastolic 
+                    : '--';
             bpElement.textContent = `${systolic}/${diastolic}`;
-            bpElement.className = 'vital-value ' + getBPClass(systolic);
+            bpElement.className = 'vital-value ' + getBPClass(typeof systolic === 'number' ? systolic : 0);
         }
         
         // SpO2
         const spo2Element = document.getElementById('spo2');
         if (spo2Element) {
-            spo2Element.textContent = vitals.spo2 || vitals.oxygenSaturation || '--';
-            spo2Element.className = 'vital-value ' + getSpO2Class(vitals.spo2);
+            const spo2 = (vitals.spo2 !== undefined && vitals.spo2 !== null) 
+                ? vitals.spo2 
+                : (vitals.oxygenSaturation !== undefined && vitals.oxygenSaturation !== null) 
+                    ? vitals.oxygenSaturation 
+                    : '--';
+            spo2Element.textContent = spo2;
+            spo2Element.className = 'vital-value ' + getSpO2Class(typeof spo2 === 'number' ? spo2 : 0);
         }
         
         // Respiratory Rate
         const rrElement = document.getElementById('rr');
         if (rrElement) {
-            rrElement.textContent = vitals.respiratoryRate || '--';
-            rrElement.className = 'vital-value ' + getRRClass(vitals.respiratoryRate);
+            const rr = (vitals.respiratoryRate !== undefined && vitals.respiratoryRate !== null) ? vitals.respiratoryRate : '--';
+            rrElement.textContent = rr;
+            rrElement.className = 'vital-value ' + getRRClass(typeof rr === 'number' ? rr : 0);
         }
         
         // Temperature
         const tempElement = document.getElementById('temp');
         if (tempElement) {
-            tempElement.textContent = vitals.temperature ? vitals.temperature.toFixed(1) : '--';
+            const temp = (vitals.temperature !== undefined && vitals.temperature !== null) 
+                ? vitals.temperature.toFixed(1) 
+                : '--';
+            tempElement.textContent = temp;
             tempElement.className = 'vital-value ' + getTempClass(vitals.temperature);
         }
         
         // Consciousness
         const consciousnessElement = document.getElementById('consciousness');
         if (consciousnessElement) {
-            consciousnessElement.textContent = vitals.consciousness || '--';
-            consciousnessElement.className = 'vital-value ' + getConsciousnessClass(vitals.consciousness);
+            const consciousness = vitals.consciousness || '--';
+            consciousnessElement.textContent = consciousness;
+            consciousnessElement.className = 'vital-value ' + getConsciousnessClass(consciousness);
         }
     } else {
         // For paramedic menu, use prefixed IDs
         const prefix = 'para';
         
         // Heart Rate
-        updateVitalElement(`${prefix}HeartRate`, vitals.heartRate, 'bpm', getHRClass(vitals.heartRate));
+        const heartRate = (vitals.heartRate !== undefined && vitals.heartRate !== null) ? vitals.heartRate : null;
+        updateVitalElement(`${prefix}HeartRate`, heartRate, 'bpm', getHRClass(heartRate));
         
         // Blood Pressure
         const bpElement = document.getElementById(`${prefix}BloodPressure`);
         if (bpElement) {
-            const systolic = vitals.bpSystolic || vitals.bloodPressureSystolic || 0;
-            const diastolic = vitals.bpDiastolic || vitals.bloodPressureDiastolic || 0;
+            const systolic = (vitals.bpSystolic !== undefined && vitals.bpSystolic !== null) 
+                ? vitals.bpSystolic 
+                : (vitals.bloodPressureSystolic !== undefined && vitals.bloodPressureSystolic !== null) 
+                    ? vitals.bloodPressureSystolic 
+                    : 0;
+            const diastolic = (vitals.bpDiastolic !== undefined && vitals.bpDiastolic !== null) 
+                ? vitals.bpDiastolic 
+                : (vitals.bloodPressureDiastolic !== undefined && vitals.bloodPressureDiastolic !== null) 
+                    ? vitals.bloodPressureDiastolic 
+                    : 0;
             bpElement.textContent = `${systolic}/${diastolic}`;
             bpElement.className = 'vital-value ' + getBPClass(systolic);
         }
         
         // Respiratory Rate
-        updateVitalElement(`${prefix}RespiratoryRate`, vitals.respiratoryRate, '/min', getRRClass(vitals.respiratoryRate));
+        const rr = (vitals.respiratoryRate !== undefined && vitals.respiratoryRate !== null) ? vitals.respiratoryRate : null;
+        updateVitalElement(`${prefix}RespiratoryRate`, rr, '/min', getRRClass(rr));
         
         // SpO2
-        updateVitalElement(`${prefix}SpO2`, vitals.spo2 || vitals.oxygenSaturation, '%', getSpO2Class(vitals.spo2));
+        const spo2 = (vitals.spo2 !== undefined && vitals.spo2 !== null) 
+            ? vitals.spo2 
+            : (vitals.oxygenSaturation !== undefined && vitals.oxygenSaturation !== null) 
+                ? vitals.oxygenSaturation 
+                : null;
+        updateVitalElement(`${prefix}SpO2`, spo2, '%', getSpO2Class(spo2));
         
         // Temperature
         updateVitalElement(`${prefix}Temperature`, vitals.temperature, '°C', getTempClass(vitals.temperature));
@@ -401,7 +435,8 @@ function updateVitalsDisplay(context, vitals) {
 function updateVitalElement(elementId, value, unit, className) {
     const element = document.getElementById(elementId);
     if (element) {
-        element.textContent = value ? `${value} ${unit}` : 'N/A';
+        const displayValue = (value !== undefined && value !== null) ? `${value} ${unit}` : 'N/A';
+        element.textContent = displayValue;
         element.className = 'vital-value ' + className;
     }
 }
@@ -551,6 +586,13 @@ function populateMCIMenu(data) {
     data.patients.forEach(patient => {
         const card = document.createElement('div');
         card.className = `mci-patient-card priority-${patient.priority || 'none'}`;
+        
+        // Safe access to vitals with fallbacks
+        const heartRate = (patient.vitals && patient.vitals.heartRate !== undefined) ? patient.vitals.heartRate : '?';
+        const bpSystolic = (patient.vitals && patient.vitals.bpSystolic !== undefined) ? patient.vitals.bpSystolic : '?';
+        const bpDiastolic = (patient.vitals && patient.vitals.bpDiastolic !== undefined) ? patient.vitals.bpDiastolic : '?';
+        const spo2 = (patient.vitals && patient.vitals.spo2 !== undefined) ? patient.vitals.spo2 : '?';
+        
         card.innerHTML = `
             <div class="mci-card-header">
                 <span class="mci-patient-name">${patient.name || 'Unknown'}</span>
@@ -558,9 +600,9 @@ function populateMCIMenu(data) {
             </div>
             <div class="mci-card-body">
                 <div class="mci-vitals-mini">
-                    <span>HR: ${patient.vitals && patient.vitals.heartRate || '?'}</span>
-                    <span>BP: ${patient.vitals && patient.vitals.bpSystolic || '?'}/${patient.vitals && patient.vitals.bpDiastolic || '?'}</span>
-                    <span>SpO2: ${patient.vitals && patient.vitals.spo2 || '?'}%</span>
+                    <span>HR: ${heartRate}</span>
+                    <span>BP: ${bpSystolic}/${bpDiastolic}</span>
+                    <span>SpO2: ${spo2}%</span>
                 </div>
                 <div class="mci-injury-count">${patient.injuryCount || 0} injuries</div>
             </div>

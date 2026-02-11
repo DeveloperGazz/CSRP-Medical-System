@@ -55,6 +55,21 @@ function VitalsThread()
     end)
 end
 
+-- Convert consciousness number to string
+function GetConsciousnessString(consciousnessLevel)
+    if consciousnessLevel == Config.VitalSigns.Consciousness.Alert then
+        return 'Alert'
+    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Voice then
+        return 'Voice'
+    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Pain then
+        return 'Pain'
+    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Unresponsive then
+        return 'Unresponsive'
+    else
+        return 'Unknown'
+    end
+end
+
 -- Calculate vitals based on injuries
 function CalculateVitals(injuries, currentVitals)
     local vitals = {}
@@ -94,19 +109,4 @@ function CalculateVitals(injuries, currentVitals)
     vitals.consciousness = GetConsciousnessString(vitals.consciousness)
     
     return vitals
-end
-
--- Convert consciousness number to string
-function GetConsciousnessString(consciousnessLevel)
-    if consciousnessLevel == Config.VitalSigns.Consciousness.Alert then
-        return 'Alert'
-    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Voice then
-        return 'Voice'
-    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Pain then
-        return 'Pain'
-    elseif consciousnessLevel == Config.VitalSigns.Consciousness.Unresponsive then
-        return 'Unresponsive'
-    else
-        return 'Unknown'
-    end
 end
