@@ -17,6 +17,8 @@ client_scripts {
     'client/progression.lua',
     'client/treatments.lua',
     'client/ui.lua',
+    'client/death.lua',
+    'client/scenarios.lua',
     'client/bystanders.lua',
     'client/psychological.lua',
     'client/mci.lua',

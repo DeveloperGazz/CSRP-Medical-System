@@ -91,9 +91,32 @@ Config.Animations = {
 -- ==========================================
 
 Config.Hospitals = {
-    {coords = vector3(298.6, -584.5, 43.3), radius = 10.0, name = 'Pillbox Hill Medical Center'},
-    {coords = vector3(-247.8, 6331.5, 32.4), radius = 10.0, name = 'Paleto Bay Medical Center'},
-    {coords = vector3(1839.6, 3672.9, 34.3), radius = 10.0, name = 'Sandy Shores Medical Center'}
+    -- resupply: enables equipment resupply when paramedic is near this location
+    {coords = vector3(298.6, -584.5, 43.3), radius = 10.0, name = 'Pillbox Hill Medical Center', resupply = true},
+    {coords = vector3(-247.8, 6331.5, 32.4), radius = 10.0, name = 'Paleto Bay Medical Center', resupply = true},
+    {coords = vector3(1839.6, 3672.9, 34.3), radius = 10.0, name = 'Sandy Shores Medical Center', resupply = true}
+}
+
+-- ==========================================
+-- DEATH SYSTEM
+-- ==========================================
+
+Config.DeathSystem = {
+    Enabled = true,
+    BlockRespawn = true,              -- Block default GTA respawn to allow paramedic RP
+    RespawnTimer = 120,               -- Seconds before player can self-respawn (default: 2 minutes)
+    AutoApplyInjuries = true,         -- Automatically apply injuries based on death cause
+    KeepPlayerDown = true             -- Keep player on ground for paramedic treatment
+}
+
+-- ==========================================
+-- MEDICAL SCENARIOS
+-- ==========================================
+
+Config.Scenarios = {
+    Enabled = true,
+    Cooldown = 60000,                 -- Cooldown between scenarios in ms (60 seconds)
+    AllowedInVehicle = false          -- Whether scenarios can be triggered while in a vehicle
 }
 
 -- ==========================================

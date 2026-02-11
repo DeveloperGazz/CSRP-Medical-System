@@ -87,3 +87,58 @@ AddEventHandler('csrp_medical:sendPatientDataToParamedic', function(paramedicId,
     
     TriggerClientEvent('csrp_medical:receivePatientData', paramedicId, patientData)
 end)
+
+-- Player death notification
+RegisterNetEvent('csrp_medical:playerDied')
+AddEventHandler('csrp_medical:playerDied', function(injuryInfo)
+    local source = source
+    local playerData = GetPlayerData(source)
+    playerData.isDead = true
+    playerData.deathCause = injuryInfo
+    playerData.deathTime = os.time()
+
+    if Config.Debug then
+        print('[CSRP Medical] Player ' .. source .. ' died - Cause: ' .. (injuryInfo.injury or 'unknown'))
+    end
+end)
+
+-- Player respawned
+RegisterNetEvent('csrp_medical:playerRespawned')
+AddEventHandler('csrp_medical:playerRespawned', function()
+    local source = source
+    local playerData = GetPlayerData(source)
+    playerData.isDead = false
+    playerData.deathCause = nil
+
+    if Config.Debug then
+        print('[CSRP Medical] Player ' .. source .. ' respawned')
+    end
+end)
+
+-- Scenario started
+RegisterNetEvent('csrp_medical:scenarioStarted')
+AddEventHandler('csrp_medical:scenarioStarted', function(scenarioId, scenarioName)
+    local source = source
+    local playerData = GetPlayerData(source)
+    playerData.activeScenario = scenarioId
+
+    if Config.Debug then
+        print('[CSRP Medical] Player ' .. source .. ' started scenario: ' .. (scenarioName or scenarioId))
+    end
+end)
+
+-- Revive player command (paramedic)
+RegisterNetEvent('csrp_medical:requestRevive')
+AddEventHandler('csrp_medical:requestRevive', function(targetId)
+    local source = source
+
+    if Config.Debug then
+        print('[CSRP Medical] Player ' .. source .. ' requesting revive for player ' .. targetId)
+    end
+
+    TriggerClientEvent('csrp_medical:revivePlayer', targetId)
+
+    local playerData = GetPlayerData(targetId)
+    playerData.isDead = false
+    playerData.deathCause = nil
+end)
