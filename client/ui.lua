@@ -13,15 +13,20 @@ function TogglePatientMenu()
     
     SetNuiFocus(uiOpen, uiOpen)
     
-    SendNUIMessage({
-        type = 'toggleUI',
-        show = uiOpen,
-        menu = 'patient',
-        data = {
-            injuries = GetPlayerInjuries(),
-            vitals = GetPlayerVitals()
-        }
-    })
+    if uiOpen then
+        SendNUIMessage({
+            action = 'openMenu',
+            menuType = 'patient',
+            data = {
+                injuries = GetPlayerInjuries(),
+                vitals = GetPlayerVitals()
+            }
+        })
+    else
+        SendNUIMessage({
+            action = 'closeMenu'
+        })
+    end
 end
 
 -- Toggle paramedic menu
@@ -31,19 +36,24 @@ function ToggleParamedicMenu()
     
     SetNuiFocus(uiOpen, uiOpen)
     
-    -- Get nearby players
-    local nearbyPlayers = GetNearbyPlayers(10.0)
-    
-    SendNUIMessage({
-        type = 'toggleUI',
-        show = uiOpen,
-        menu = 'paramedic',
-        data = {
-            equipment = GetParamedicEquipment(),
-            nearbyPlayers = nearbyPlayers,
-            treatments = Treatments.Definitions
-        }
-    })
+    if uiOpen then
+        -- Get nearby players
+        local nearbyPlayers = GetNearbyPlayers(10.0)
+        
+        SendNUIMessage({
+            action = 'openMenu',
+            menuType = 'paramedic',
+            data = {
+                equipment = GetParamedicEquipment(),
+                nearbyPlayers = nearbyPlayers,
+                treatments = Treatments.Definitions
+            }
+        })
+    else
+        SendNUIMessage({
+            action = 'closeMenu'
+        })
+    end
 end
 
 -- Get nearby players
@@ -72,7 +82,7 @@ function GetNearbyPlayers(radius)
 end
 
 -- NUI Callbacks
-RegisterNUICallback('close', function(data, cb)
+RegisterNUICallback('closeMenu', function(data, cb)
     uiOpen = false
     currentMenu = nil
     SetNuiFocus(false, false)
