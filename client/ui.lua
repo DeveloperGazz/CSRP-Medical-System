@@ -23,28 +23,26 @@ local currentMenu = nil       -- Which menu is open? ('patient' or 'paramedic')
 -- Toggle patient menu (called when F6 is pressed)
 -- Shows player's current vitals and injuries
 function TogglePatientMenu()
-    uiOpen = not uiOpen
-    currentMenu = 'patient'
-    
-    -- CRITICAL: SetNuiFocus controls whether UI can receive input
-    -- First parameter: Can UI receive keyboard input?
-    -- Second parameter: Can UI receive mouse input?
-    SetNuiFocus(uiOpen, uiOpen)
-    
-    if uiOpen then
-        -- Opening menu: Gather player data and send to NUI
+    if uiOpen and currentMenu == 'patient' then
+        -- Menu is open, close it
+        uiOpen = false
+        currentMenu = nil
+        SetNuiFocus(false, false)
+        SendNUIMessage({
+            action = 'closeMenu'
+        })
+    else
+        -- Open the patient menu (close any other menu first)
+        uiOpen = true
+        currentMenu = 'patient'
+        SetNuiFocus(true, true)
         SendNUIMessage({
             action = 'openMenu',
             menuType = 'patient',
             data = {
-                injuries = GetInjuriesForNUI(),  -- Formatted injury list
-                vitals = GetPlayerVitals()       -- Current vital signs
+                injuries = GetInjuriesForNUI(),
+                vitals = GetPlayerVitals()
             }
-        })
-    else
-        -- Closing menu: Tell NUI to hide
-        SendNUIMessage({
-            action = 'closeMenu'
         })
     end
 end
@@ -52,16 +50,21 @@ end
 -- Toggle paramedic menu (called when F7 is pressed)
 -- Shows nearby patients, available treatments, and equipment inventory
 function ToggleParamedicMenu()
-    uiOpen = not uiOpen
-    currentMenu = 'paramedic'
-    
-    -- Enable/disable NUI focus (same as patient menu)
-    SetNuiFocus(uiOpen, uiOpen)
-    
-    if uiOpen then
-        -- Get nearby players within 10 meters
+    if uiOpen and currentMenu == 'paramedic' then
+        -- Menu is open, close it
+        uiOpen = false
+        currentMenu = nil
+        SetNuiFocus(false, false)
+        SendNUIMessage({
+            action = 'closeMenu'
+        })
+    else
+        -- Open the paramedic menu (close any other menu first)
+        uiOpen = true
+        currentMenu = 'paramedic'
+        SetNuiFocus(true, true)
+
         local nearbyPlayers = GetNearbyPlayers(10.0)
-        
         SendNUIMessage({
             action = 'openMenu',
             menuType = 'paramedic',
@@ -70,10 +73,6 @@ function ToggleParamedicMenu()
                 nearbyPlayers = nearbyPlayers,
                 treatments = Treatments.Definitions
             }
-        })
-    else
-        SendNUIMessage({
-            action = 'closeMenu'
         })
     end
 end
@@ -220,6 +219,15 @@ RegisterNUICallback('selectPatient', function(data, cb)
     end
 end)
 
+RegisterNUICallback('revivePatient', function(data, cb)
+    if data.targetId then
+        TriggerServerEvent('csrp_medical:requestRevive', data.targetId)
+        cb('ok')
+    else
+        cb('error')
+    end
+end)
+
 -- Network event handlers
 
 -- When paramedic requests this player's data
@@ -244,4 +252,15 @@ AddEventHandler('csrp_medical:receivePatientData', function(patientData)
         action = 'updatePatientData',
         patient = patientData
     })
+end)
+
+-- Safety thread: ensure NUI focus is released when menu is not open
+-- This prevents the cursor from getting stuck on screen
+Citizen.CreateThread(function()
+    while true do
+        Wait(1000)
+        if not uiOpen then
+            SetNuiFocus(false, false)
+        end
+    end
 end)
