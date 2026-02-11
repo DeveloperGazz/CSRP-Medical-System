@@ -23,16 +23,29 @@ local currentMenu = nil       -- Which menu is open? ('patient' or 'paramedic')
 -- Toggle patient menu (called when F6 is pressed)
 -- Shows player's current vitals and injuries
 function TogglePatientMenu()
+    if Config.Debug then
+        print('[CSRP Medical Debug] TogglePatientMenu called - uiOpen: ' .. tostring(uiOpen) .. ', currentMenu: ' .. tostring(currentMenu))
+    end
+
     if uiOpen and currentMenu == 'patient' then
         -- Menu is open, close it
+        if Config.Debug then
+            print('[CSRP Medical Debug] Closing patient menu')
+        end
         uiOpen = false
         currentMenu = nil
         SetNuiFocus(false, false)
         SendNUIMessage({
             action = 'closeMenu'
         })
+        if Config.Debug then
+            print('[CSRP Medical Debug] Patient menu closed - NUI focus released')
+        end
     else
         -- Open the patient menu (close any other menu first)
+        if Config.Debug then
+            print('[CSRP Medical Debug] Opening patient menu')
+        end
         uiOpen = true
         currentMenu = 'patient'
         SetNuiFocus(true, true)
@@ -44,22 +57,38 @@ function TogglePatientMenu()
                 vitals = GetPlayerVitals()
             }
         })
+        if Config.Debug then
+            print('[CSRP Medical Debug] Patient menu opened - NUI focus set')
+        end
     end
 end
 
 -- Toggle paramedic menu (called when F7 is pressed)
 -- Shows nearby patients, available treatments, and equipment inventory
 function ToggleParamedicMenu()
+    if Config.Debug then
+        print('[CSRP Medical Debug] ToggleParamedicMenu called - uiOpen: ' .. tostring(uiOpen) .. ', currentMenu: ' .. tostring(currentMenu))
+    end
+
     if uiOpen and currentMenu == 'paramedic' then
         -- Menu is open, close it
+        if Config.Debug then
+            print('[CSRP Medical Debug] Closing paramedic menu')
+        end
         uiOpen = false
         currentMenu = nil
         SetNuiFocus(false, false)
         SendNUIMessage({
             action = 'closeMenu'
         })
+        if Config.Debug then
+            print('[CSRP Medical Debug] Paramedic menu closed - NUI focus released')
+        end
     else
         -- Open the paramedic menu (close any other menu first)
+        if Config.Debug then
+            print('[CSRP Medical Debug] Opening paramedic menu')
+        end
         uiOpen = true
         currentMenu = 'paramedic'
         SetNuiFocus(true, true)
@@ -74,6 +103,9 @@ function ToggleParamedicMenu()
                 treatments = Treatments.Definitions
             }
         })
+        if Config.Debug then
+            print('[CSRP Medical Debug] Paramedic menu opened - NUI focus set')
+        end
     end
 end
 
@@ -140,9 +172,15 @@ end
 -- Close menu callback
 -- Called when user presses Escape or clicks the × button
 RegisterNUICallback('closeMenu', function(data, cb)
+    if Config.Debug then
+        print('[CSRP Medical Debug] closeMenu NUI callback received - uiOpen was: ' .. tostring(uiOpen) .. ', currentMenu was: ' .. tostring(currentMenu))
+    end
     uiOpen = false
     currentMenu = nil
     SetNuiFocus(false, false)  -- CRITICAL: Returns keyboard/mouse control to game
+    if Config.Debug then
+        print('[CSRP Medical Debug] closeMenu NUI callback complete - NUI focus released')
+    end
     cb('ok')  -- Must respond to JavaScript
 end)
 
@@ -261,6 +299,9 @@ Citizen.CreateThread(function()
         Wait(1000)
         if not uiOpen then
             SetNuiFocus(false, false)
+        end
+        if Config.Debug then
+            print('[CSRP Medical Debug] Safety thread check - uiOpen: ' .. tostring(uiOpen) .. ', currentMenu: ' .. tostring(currentMenu))
         end
     end
 end)
