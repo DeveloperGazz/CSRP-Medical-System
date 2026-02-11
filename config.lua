@@ -95,3 +95,61 @@ Config.Hospitals = {
     {coords = vector3(-247.8, 6331.5, 32.4), radius = 10.0, name = 'Paleto Bay Medical Center'},
     {coords = vector3(1839.6, 3672.9, 34.3), radius = 10.0, name = 'Sandy Shores Medical Center'}
 }
+
+-- ==========================================
+-- EQUIPMENT QUANTITIES
+-- ==========================================
+
+Config.Equipment = {
+    -- Bleeding Control
+    Bandages = 15,
+    PressureDressings = 10,
+    Tourniquets = 4,
+    HemostaticGauze = 5,
+    PelvicBinder = 2,
+    
+    -- Wound/Burn Dressings
+    ChestSeals = 4,
+    BurnDressings = 8,
+    
+    -- Airway Management
+    OPA = 3,
+    NPA = 3,
+    SuctionUses = 5,
+    
+    -- Breathing Support
+    OxygenMinutes = 120,
+    BVM = 1,
+    NeedleDecompression = 3,
+    
+    -- Circulation
+    IVBags = 6,
+    IVLines = 6,
+    
+    -- Immobilization
+    Splints = 6,
+    CervicalCollars = 3,
+    SpineBoards = 1,
+    
+    -- Pain Relief
+    Paracetamol = 10,
+    Morphine = 5,
+    Fentanyl = 3,
+    Entonox = 5,
+    
+    -- Cardiac Medications
+    Adrenaline = 5,
+    Aspirin = 10,
+    GTN = 5,
+    
+    -- Other Medications
+    Salbutamol = 5,
+    Glucose = 5,
+    Naloxone = 3,
+    Midazolam = 3,
+    
+    -- Equipment
+    Defibrillator = 1,
+    ThermalBlanket = 2,
+    CoolingPacks = 4
+}
