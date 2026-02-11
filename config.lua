@@ -1,1 +1,40 @@
-Config = {}\n\n-- Vital Signs Configuration\nConfig.VitalSigns = {\n    Consciousness = {\n        Alert = 4,\n        Voice = 3,\n        Pain = 2,\n        Unresponsive = 1\n    }\n}\n\n-- Permissions Configuration\nConfig.Permissions = {\n    UsePatientMenu = true,\n    UseParamedicMenu = false\n}\n\n-- Hospitals Configuration\nConfig.Hospitals = {\n    Pillbox = {\n        coords = { x = 300.0, y = -600.0, z = 43.0 }\n    }\n}\n\n-- Progression Configuration\nConfig.Progression = {\n    level1 = {},\n    level2 = {},\n    level3 = {}\n}\n\n-- Animations Configuration\nConfig.Animations = {}\n
+Config = {}
+
+Config.VitalSigns = {
+    Consciousness = {
+        Alert = 4,
+        Voice = 3,
+        Pain = 2,
+        Unresponsive = 1
+    }
+}
+
+Config.Permissions = {
+    UsePatientMenu = true,
+    UseParamedicMenu = false
+}
+
+Config.Hospitals = {
+    {
+        name = "Pillbox Hospital",
+        coords = vector3(298.5, -584.5, 43.3),
+        resupply = true
+    }
+}
+
+Config.Progression = {
+    ProgressionInterval = 10000,
+    BleedingProgressionRate = 0.1,
+    BleedingRate = 1.0,
+    BloodLossPerTick = 0.5,
+    ShockThreshold = 50,
+    EnableComplications = true,
+    CardiacArrestChance = 0.01,
+    AirwayObstructionChance = 0.05,
+    DiastolicRatio = 0.6
+}
+
+Config.Animations = {}
+Config.Debug = true
+
+return Config
