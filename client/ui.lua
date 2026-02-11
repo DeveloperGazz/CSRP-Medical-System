@@ -18,7 +18,7 @@ function TogglePatientMenu()
             action = 'openMenu',
             menuType = 'patient',
             data = {
-                injuries = GetPlayerInjuries(),
+                injuries = GetInjuriesForNUI(),
                 vitals = GetPlayerVitals()
             }
         })
