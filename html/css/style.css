@@ -5,9 +5,10 @@
     --menu-max-height: 90vh;
     /* 
      * Tab content offset calculation:
-     * - Menu header: 94px (25px × 2 padding + 28px h1 + 2px border + 9px spacing)
-     * - Tab navigation: 66px (18px × 2 padding + 17px font + 3px border + 10px spacing)
-     * Total: 160px (update if header/tab heights change)
+     * - Menu header: 94px (see .menu-header: 25px × 2 padding + 28px h1 + 2px border + spacing)
+     * - Tab navigation: 66px (see .tab-btn: 18px × 2 padding + 17px font + 3px border + spacing)
+     * Total: 160px (update if .menu-header or .tab-btn styles change)
+     * Note: These are calculated values - update this comment if header/tab styles are modified
      */
     --tab-content-offset: 160px;
     
@@ -315,6 +316,7 @@ body {
      * Scroll indicators: 4-layer gradient system to show scrollable content
      * Layer 1-2: White fade overlays that hide content at boundaries (local attachment)
      * Layer 3-4: Colored shadow indicators that appear when scrollable (scroll attachment)
+     * Note: rgba(255,255,255,0) creates transparent white for smooth fade transitions
      */
     background: 
         /* Top fade: white gradient fades content at top edge */
