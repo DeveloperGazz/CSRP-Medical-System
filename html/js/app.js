@@ -128,7 +128,7 @@ function openMenu(menuType, data) {
     }
 }
 
-function closeMenu() {
+function closeMenu(notifyBackend = true) {
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
@@ -140,8 +140,10 @@ function closeMenu() {
     
     currentMenu = null;
     
-    // Notify Lua
-    postNUI('closeMenu', {});
+    // Notify Lua only when user initiates close (not when backend tells us to close)
+    if (notifyBackend) {
+        postNUI('closeMenu', {});
+    }
 }
 
 // ==========================================
@@ -823,7 +825,7 @@ window.addEventListener('message', (event) => {
             openMenu(data.menuType, data.data);
             break;
         case 'closeMenu':
-            closeMenu();
+            closeMenu(false); // Don't notify backend - it already knows
             break;
         case 'updateVitals':
             if (currentMenu === 'patient') {
