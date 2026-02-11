@@ -12,10 +12,15 @@ Citizen.CreateThread(function()
     
     -- Check if player is paramedic
     if Config and Config.Permissions and Config.Permissions.UseParamedicMenu then
-        currentEquipment = Equipment.Initialize()
-        
-        if Config.Debug then
-            print('[CSRP Medical] Equipment initialized')
+        if Equipment and Equipment.Initialize then
+            currentEquipment = Equipment.Initialize()
+            
+            if Config.Debug then
+                print('[CSRP Medical] Equipment initialized')
+            end
+        else
+            print('[CSRP Medical] ERROR: Equipment module not loaded')
+            currentEquipment = {}
         end
     end
 end)
@@ -23,31 +28,35 @@ end)
 -- Network event to use equipment
 RegisterNetEvent('csrp:medical:useEquipment')
 AddEventHandler('csrp:medical:useEquipment', function(equipmentType, amount)
-    if Equipment.UseEquipment(currentEquipment, equipmentType, amount) then
-        if Config and Config.Debug then
-            print('[CSRP Medical] Used ' .. amount .. 'x ' .. equipmentType)
+    if Equipment and Equipment.UseEquipment then
+        if Equipment.UseEquipment(currentEquipment, equipmentType, amount) then
+            if Config and Config.Debug then
+                print('[CSRP Medical] Used ' .. amount .. 'x ' .. equipmentType)
+            end
+            
+            -- Update UI
+            TriggerEvent('csrp:medical:updateEquipmentUI', currentEquipment)
+        else
+            TriggerEvent('chat:addMessage', {
+                args = {'Medical System', 'Insufficient ' .. equipmentType}
+            })
         end
-        
-        -- Update UI
-        TriggerEvent('csrp:medical:updateEquipmentUI', currentEquipment)
-    else
-        TriggerEvent('chat:addMessage', {
-            args = {'Medical System', 'Insufficient ' .. equipmentType}
-        })
     end
 end)
 
 -- Network event to resupply equipment
 RegisterNetEvent('csrp:medical:resupplyEquipment')
 AddEventHandler('csrp:medical:resupplyEquipment', function()
-    currentEquipment = Equipment.Resupply(currentEquipment)
-    
-    if Config and Config.Debug then
-        print('[CSRP Medical] Equipment resupplied')
+    if Equipment and Equipment.Resupply then
+        currentEquipment = Equipment.Resupply(currentEquipment)
+        
+        if Config and Config.Debug then
+            print('[CSRP Medical] Equipment resupplied')
+        end
+        
+        -- Update UI
+        TriggerEvent('csrp:medical:updateEquipmentUI', currentEquipment)
     end
-    
-    -- Update UI
-    TriggerEvent('csrp:medical:updateEquipmentUI', currentEquipment)
 end)
 
 -- Get current equipment state

@@ -56,7 +56,8 @@ Citizen.CreateThread(function()
             
             -- Update pain level
             patientEffects.painLevel = vitals.pain or 0
-            patientEffects.consciousness = vitals.consciousness or 4
+            -- Ensure consciousness is a number
+            patientEffects.consciousness = tonumber(vitals.consciousness) or 4
         end
     end
 end)
