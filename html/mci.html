@@ -255,15 +255,18 @@
             }
         }
         
-        // Auto-update duration
-        updateInterval = setInterval(() => {
-            if (mciData && mciData.duration !== undefined) {
-                mciData.duration++;
-                const minutes = Math.floor(mciData.duration / 60);
-                const seconds = Math.floor(mciData.duration % 60);
-                document.getElementById('mci-duration').textContent = `${minutes}m ${seconds}s`;
-            }
-        }, 1000);
+        // Start auto-update timer if not already running
+        if (!updateInterval && mciData && mciData.duration !== undefined) {
+            updateInterval = setInterval(() => {
+                if (mciData && mciData.duration !== undefined) {
+                    mciData.duration++;
+                    const minutes = Math.floor(mciData.duration / 60);
+                    const seconds = Math.floor(mciData.duration % 60);
+                    document.getElementById('mci-duration').textContent = `${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+        }
+    }
     </script>
 </body>
 </html>

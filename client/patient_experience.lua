@@ -101,6 +101,9 @@ Citizen.CreateThread(function()
                 if IsPedSprinting(playerPed) then
                     SetPedMoveRateOverride(playerPed, 0.7)
                 end
+            else
+                -- Reset move rate when no leg injury
+                SetPedMoveRateOverride(playerPed, 1.0)
             end
             
             -- Disable certain actions if critically injured

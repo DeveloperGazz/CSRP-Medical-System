@@ -98,6 +98,7 @@ AddEventHandler('csrp:medical:nearDeath', function()
 end)
 
 -- Visual effects based on psychological state
+local lastHeartbeatSound = 0
 Citizen.CreateThread(function()
     while true do
         Wait(100)
@@ -114,9 +115,11 @@ Citizen.CreateThread(function()
         
         -- High anxiety effects
         if psychologicalState.anxiety >= 60 then
-            -- Increased heart rate (visual)
-            if math.random() < 0.05 then
+            -- Increased heart rate (visual) with cooldown
+            local currentTime = GetGameTimer()
+            if math.random() < 0.05 and (currentTime - lastHeartbeatSound) > 5000 then
                 PlaySoundFrontend(-1, 'HEARTBEAT', 'SHOOTING_RANGE_SOUNDSET', true)
+                lastHeartbeatSound = currentTime
             end
         end
         

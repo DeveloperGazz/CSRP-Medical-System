@@ -136,21 +136,29 @@ end
 
 -- Apply complication effects to vitals
 function ApplyComplicationEffects(vitals)
+    if not vitals then
+        return vitals
+    end
+    
     for _, complication in ipairs(activeComplications) do
-        if complication.effects.heartRate then
+        if complication.effects.heartRate and vitals.heartRate then
             vitals.heartRate = vitals.heartRate + complication.effects.heartRate
         end
         if complication.effects.bloodPressure then
-            vitals.systolicBP = vitals.systolicBP + complication.effects.bloodPressure
-            vitals.diastolicBP = vitals.diastolicBP + (complication.effects.bloodPressure * 0.6)
+            if vitals.systolicBP then
+                vitals.systolicBP = vitals.systolicBP + complication.effects.bloodPressure
+            end
+            if vitals.diastolicBP then
+                vitals.diastolicBP = vitals.diastolicBP + (complication.effects.bloodPressure * 0.6)
+            end
         end
-        if complication.effects.oxygenSaturation then
+        if complication.effects.oxygenSaturation and vitals.oxygenSaturation then
             vitals.oxygenSaturation = vitals.oxygenSaturation + complication.effects.oxygenSaturation
         end
-        if complication.effects.respiratoryRate then
+        if complication.effects.respiratoryRate and vitals.respiratoryRate then
             vitals.respiratoryRate = vitals.respiratoryRate + complication.effects.respiratoryRate
         end
-        if complication.effects.temperature then
+        if complication.effects.temperature and vitals.temperature then
             vitals.temperature = vitals.temperature + complication.effects.temperature
         end
     end
