@@ -142,7 +142,7 @@ function closeMenu(notifyBackend = true) {
     }
     
     // Don't try to close if no menu is open
-    if (!currentMenu && appElement && appElement.style.display === 'none') {
+    if (!currentMenu) {
         return;
     }
     
@@ -164,10 +164,8 @@ function closeMenu(notifyBackend = true) {
         postNUI('closeMenu', {});
     }
     
-    // Reset the flag after a short delay to allow the close operation to complete
-    setTimeout(() => {
-        isClosing = false;
-    }, 100);
+    // Reset the flag immediately after synchronous operations complete
+    isClosing = false;
 }
 
 // ==========================================
