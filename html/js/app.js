@@ -229,8 +229,10 @@ function populateParamedicMenu(data) {
         updateVitalsDisplay('paramedic', data.patient.vitals);
     }
     
-    // Update body map
-    updateBodyMap(data.patient.injuries);
+    // Update body map (with null check)
+    if (data.patient.injuries) {
+        updateBodyMap(data.patient.injuries);
+    }
     
     // Update injury list
     updateParamedicInjuryList(data.patient.injuries);
