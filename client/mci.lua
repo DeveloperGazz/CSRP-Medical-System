@@ -110,18 +110,27 @@ end
 
 -- Auto-triage based on vitals
 function AutoTriage(vitals)
+    if not vitals then
+        return 'T3' -- Default to delayed if no vitals available
+    end
+    
     -- T1 (Immediate) - Life-threatening but salvageable
-    if vitals.consciousness == 1 or vitals.heartRate > 120 or vitals.oxygenSaturation < 90 or vitals.systolicBP < 90 then
+    if (vitals.consciousness and vitals.consciousness == 1) or 
+       (vitals.heartRate and vitals.heartRate > 120) or 
+       (vitals.oxygenSaturation and vitals.oxygenSaturation < 90) or 
+       (vitals.systolicBP and vitals.systolicBP < 90) then
         return 'T1'
     end
     
     -- T2 (Urgent) - Serious but stable
-    if vitals.heartRate > 100 or vitals.oxygenSaturation < 95 or vitals.pain >= 7 then
+    if (vitals.heartRate and vitals.heartRate > 100) or 
+       (vitals.oxygenSaturation and vitals.oxygenSaturation < 95) or 
+       (vitals.pain and vitals.pain >= 7) then
         return 'T2'
     end
     
     -- T3 (Delayed) - Minor injuries
-    if vitals.pain >= 3 then
+    if vitals.pain and vitals.pain >= 3 then
         return 'T3'
     end
     

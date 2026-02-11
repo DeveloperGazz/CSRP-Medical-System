@@ -124,7 +124,7 @@ function TriggerComplication(complication)
     -- Trigger server event for sync
     TriggerServerEvent('csrp:medical:complicationTriggered', complication.id)
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Complication triggered: ' .. complication.name)
     end
 end
