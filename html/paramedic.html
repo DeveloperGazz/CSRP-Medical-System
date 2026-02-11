@@ -3,13 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paramedic Tablet</title>
+    <title>Paramedic Tablet - CSRP Medical</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <!-- Paramedic tablet UI - Planned for future implementation -->
-    <div id="paramedic-tablet">
-        <h2>Paramedic Tablet</h2>
-        <p>Feature under development</p>
+    <div id="paramedic-standalone" class="menu-container tablet">
+        <div class="menu-header">
+            <h1>🚑 Paramedic Tablet</h1>
+            <button class="close-btn" onclick="closeParamedicTablet()">×</button>
+        </div>
+        
+        <div class="menu-content">
+            <!-- Tab Navigation -->
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('assessment', this)">
+                    <span class="tab-icon">🩺</span> Assessment
+                </button>
+                <button class="tab-btn" onclick="switchTab('patients', this)">
+                    <span class="tab-icon">👥</span> Patients
+                </button>
+                <button class="tab-btn" onclick="switchTab('treatments', this)">
+                    <span class="tab-icon">💉</span> Treatments
+                </button>
+                <button class="tab-btn" onclick="switchTab('equipment', this)">
+                    <span class="tab-icon">📦</span> Equipment
+                </button>
+            </div>
+            
+            <!-- Assessment Tab -->
+            <div id="tab-assessment" class="tab-content active">
+                <h2>📋 Patient Assessment Tools</h2>
+                
+                <div class="assessment-grid">
+                    <div class="assessment-card">
+                        <h3>🔴 ABCDE Primary Survey</h3>
+                        <p>Systematic approach to patient assessment</p>
+                        <button class="action-btn primary" onclick="performABCDE()">Perform ABCDE</button>
+                    </div>
+                    
+                    <div class="assessment-card">
+                        <h3>🔍 Secondary Survey</h3>
+                        <p>Head-to-toe examination</p>
+                        <button class="action-btn" onclick="performSecondarySurvey()">Start Survey</button>
+                    </div>
+                    
+                    <div class="assessment-card">
+                        <h3>📊 Vital Signs</h3>
+                        <p>Check patient vital signs</p>
+                        <button class="action-btn" onclick="checkVitalsParamedic()">Check Vitals</button>
+                    </div>
+                    
+                    <div class="assessment-card">
+                        <h3>👁️ Pupil Response</h3>
+                        <p>Neurological assessment</p>
+                        <button class="action-btn" onclick="checkPupils()">Check Pupils</button>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <h3>⚡ Quick Actions</h3>
+                    <div class="button-grid">
+                        <button class="action-btn emergency" onclick="performCPR()">
+                            <span class="btn-icon">💓</span> CPR
+                        </button>
+                        <button class="action-btn emergency" onclick="useDefibrillator()">
+                            <span class="btn-icon">⚡</span> Defibrillate
+                        </button>
+                        <button class="action-btn" onclick="applyOxygen()">
+                            <span class="btn-icon">🫁</span> Oxygen
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patients Tab -->
+            <div id="tab-patients" class="tab-content">
+                <h2>👥 Nearby Patients</h2>
+                <div id="paramedic-patients-list" class="patients-list">
+                    <p class="no-data">No patients in range</p>
+                </div>
+            </div>
+            
+            <!-- Treatments Tab -->
+            <div id="tab-treatments" class="tab-content">
+                <h2>💉 Treatment Options</h2>
+                
+                <div class="treatment-filter">
+                    <button class="filter-btn active" onclick="filterTreatment('all', this)">All</button>
+                    <button class="filter-btn" onclick="filterTreatment('airway', this)">Airway</button>
+                    <button class="filter-btn" onclick="filterTreatment('breathing', this)">Breathing</button>
+                    <button class="filter-btn" onclick="filterTreatment('circulation', this)">Circulation</button>
+                    <button class="filter-btn" onclick="filterTreatment('medication', this)">Medications</button>
+                </div>
+                
+                <div id="paramedic-treatments-list" class="treatments-list">
+                    <p class="no-data">Select a patient to view available treatments</p>
+                </div>
+            </div>
+            
+            <!-- Equipment Tab -->
+            <div id="tab-equipment" class="tab-content">
+                <h2>📦 Equipment Inventory</h2>
+                <div id="paramedic-equipment-list" class="equipment-list">
+                    <p class="no-data">Loading equipment...</p>
+                </div>
+                
+                <button class="action-btn primary full-width" onclick="resupplyEquipment()">
+                    <span class="btn-icon">🔄</span> Resupply at Hospital
+                </button>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        let currentTab = 'assessment';
+        
+        function switchTab(tabName, button) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            button.classList.add('active');
+            currentTab = tabName;
+        }
+        
+        function closeParamedicTablet() {
+            fetch('https://csrp-medical-system/closeParamedicTablet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function performABCDE() {
+            fetch('https://csrp-medical-system/performABCDE', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function performSecondarySurvey() {
+            fetch('https://csrp-medical-system/performSecondarySurvey', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function checkVitalsParamedic() {
+            fetch('https://csrp-medical-system/checkVitals', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function checkPupils() {
+            fetch('https://csrp-medical-system/checkPupils', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function performCPR() {
+            fetch('https://csrp-medical-system/performCPR', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function useDefibrillator() {
+            fetch('https://csrp-medical-system/useDefibrillator', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function applyOxygen() {
+            fetch('https://csrp-medical-system/applyOxygen', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function resupplyEquipment() {
+            fetch('https://csrp-medical-system/resupplyEquipment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function filterTreatment(category, button) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            fetch('https://csrp-medical-system/filterTreatments', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ category: category })
+            });
+        }
+        
+        // Listen for data updates
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'updateParamedicData') {
+                updateParamedicDisplay(event.data);
+            }
+        });
+        
+        function updateParamedicDisplay(data) {
+            if (data.patients) {
+                const patientsList = document.getElementById('paramedic-patients-list');
+                if (data.patients.length > 0) {
+                    patientsList.innerHTML = data.patients.map(patient => 
+                        `<div class="patient-item" onclick="selectPatient(${patient.id})">
+                            <strong>Patient #${patient.id}</strong>
+                            <span class="distance">${patient.distance}m</span>
+                        </div>`
+                    ).join('');
+                } else {
+                    patientsList.innerHTML = '<p class="no-data">No patients in range</p>';
+                }
+            }
+            
+            if (data.equipment) {
+                const equipmentList = document.getElementById('paramedic-equipment-list');
+                equipmentList.innerHTML = Object.entries(data.equipment).map(([item, count]) => 
+                    `<div class="equipment-item ${count === 0 ? 'empty' : ''}">
+                        <span class="item-name">${item}</span>
+                        <span class="item-count">${count}</span>
+                    </div>`
+                ).join('');
+            }
+        }
+        
+        function selectPatient(patientId) {
+            fetch('https://csrp-medical-system/selectPatient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ patientId: patientId })
+            });
+        }
+    </script>
 </body>
 </html>
