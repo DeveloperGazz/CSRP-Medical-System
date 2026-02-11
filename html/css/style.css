@@ -3,6 +3,8 @@
 :root {
     --scroll-indicator-color: rgba(0, 94, 184, 0.2);
     --tab-content-offset: 160px; /* Header height + tab navigation height */
+    --scroll-fade-size: 40px; /* Height of fade-out effect at scroll boundaries */
+    --scroll-shadow-size: 14px; /* Height of colored shadow indicators */
 }
 
 * {
@@ -296,14 +298,27 @@ body {
     /* Dynamic height: menu max-height (90vh) minus header and tabs */
     max-height: calc(90vh - var(--tab-content-offset));
     overflow-y: auto;
-    /* Scroll indicators: gradients that fade in/out to show scrollable content */
-    background: linear-gradient(white 30%, rgba(255,255,255,0)),
-                linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
-                radial-gradient(farthest-side at 50% 0, var(--scroll-indicator-color), rgba(0,0,0,0)),
-                radial-gradient(farthest-side at 50% 100%, var(--scroll-indicator-color), rgba(0,0,0,0)) 0 100%;
+    /* 
+     * Scroll indicators: 4-layer gradient system to show scrollable content
+     * Layer 1-2: White fade overlays that hide content at boundaries (local attachment)
+     * Layer 3-4: Colored shadow indicators that appear when scrollable (scroll attachment)
+     */
+    background: 
+        /* Top fade: white gradient fades content at top edge */
+        linear-gradient(white 30%, rgba(255,255,255,0)),
+        /* Bottom fade: white gradient fades content at bottom edge */
+        linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+        /* Top shadow: blue gradient appears when content scrollable above */
+        radial-gradient(farthest-side at 50% 0, var(--scroll-indicator-color), rgba(0,0,0,0)),
+        /* Bottom shadow: blue gradient appears when content scrollable below */
+        radial-gradient(farthest-side at 50% 100%, var(--scroll-indicator-color), rgba(0,0,0,0)) 0 100%;
     background-repeat: no-repeat;
     background-color: white;
-    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+    background-size: 
+        100% var(--scroll-fade-size), 
+        100% var(--scroll-fade-size), 
+        100% var(--scroll-shadow-size), 
+        100% var(--scroll-shadow-size);
     background-attachment: local, local, scroll, scroll;
 }
 
