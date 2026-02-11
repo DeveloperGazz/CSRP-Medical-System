@@ -2,9 +2,17 @@
 
 :root {
     --scroll-indicator-color: rgba(0, 94, 184, 0.2);
-    --tab-content-offset: 160px; /* Header height + tab navigation height */
+    /* 
+     * Tab content offset accounts for:
+     * - Menu header: ~94px (25px top/bottom padding + 28px h1 + 2px border + margins)
+     * - Tab navigation: ~66px (18px top/bottom padding + 17px font + 3px border + margins)
+     * Total: ~160px (may need adjustment if header/tab styles change)
+     */
+    --tab-content-offset: 160px;
     --scroll-fade-size: 40px; /* Height of fade-out effect at scroll boundaries */
     --scroll-shadow-size: 14px; /* Height of colored shadow indicators */
+    --scroll-fade-start: 30%; /* Gradient stop for top fade-out */
+    --scroll-fade-end: 70%; /* Gradient stop for bottom fade-out */
 }
 
 * {
@@ -305,9 +313,9 @@ body {
      */
     background: 
         /* Top fade: white gradient fades content at top edge */
-        linear-gradient(white 30%, rgba(255,255,255,0)),
+        linear-gradient(white var(--scroll-fade-start), rgba(255,255,255,0)),
         /* Bottom fade: white gradient fades content at bottom edge */
-        linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+        linear-gradient(rgba(255,255,255,0), white var(--scroll-fade-end)) 0 100%,
         /* Top shadow: blue gradient appears when content scrollable above */
         radial-gradient(farthest-side at 50% 0, var(--scroll-indicator-color), rgba(0,0,0,0)),
         /* Bottom shadow: blue gradient appears when content scrollable below */
