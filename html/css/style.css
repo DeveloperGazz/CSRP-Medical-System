@@ -1,5 +1,9 @@
 /* CSRP Medical System - NHS Inspired UI */
 
+:root {
+    --scroll-indicator-color: rgba(0, 94, 184, 0.2);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -288,12 +292,14 @@ body {
 .tab-content {
     display: none;
     padding: 30px;
+    /* Height calculation: 90vh (menu height) - 160px (header ~94px + tabs ~66px) */
     max-height: calc(90vh - 160px);
     overflow-y: auto;
+    /* Scroll indicators: gradients that fade in/out to show scrollable content */
     background: linear-gradient(white 30%, rgba(255,255,255,0)),
                 linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
-                radial-gradient(farthest-side at 50% 0, rgba(0,94,184,.2), rgba(0,0,0,0)),
-                radial-gradient(farthest-side at 50% 100%, rgba(0,94,184,.2), rgba(0,0,0,0)) 0 100%;
+                radial-gradient(farthest-side at 50% 0, var(--scroll-indicator-color), rgba(0,0,0,0)),
+                radial-gradient(farthest-side at 50% 100%, var(--scroll-indicator-color), rgba(0,0,0,0)) 0 100%;
     background-repeat: no-repeat;
     background-color: white;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
