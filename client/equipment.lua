@@ -11,7 +11,7 @@ Citizen.CreateThread(function()
     Wait(2000)
     
     -- Check if player is paramedic
-    if Config.Permissions.UseParamedicMenu then
+    if Config and Config.Permissions and Config.Permissions.UseParamedicMenu then
         currentEquipment = Equipment.Initialize()
         
         if Config.Debug then
@@ -24,7 +24,7 @@ end)
 RegisterNetEvent('csrp:medical:useEquipment')
 AddEventHandler('csrp:medical:useEquipment', function(equipmentType, amount)
     if Equipment.UseEquipment(currentEquipment, equipmentType, amount) then
-        if Config.Debug then
+        if Config and Config.Debug then
             print('[CSRP Medical] Used ' .. amount .. 'x ' .. equipmentType)
         end
         
@@ -42,7 +42,7 @@ RegisterNetEvent('csrp:medical:resupplyEquipment')
 AddEventHandler('csrp:medical:resupplyEquipment', function()
     currentEquipment = Equipment.Resupply(currentEquipment)
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Equipment resupplied')
     end
     

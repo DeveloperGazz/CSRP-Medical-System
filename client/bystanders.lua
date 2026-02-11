@@ -36,6 +36,10 @@ function CreateBystander(coords, reaction)
     
     table.insert(activeBystanders, bystander)
     
+    if Config and Config.Debug then
+        print('[CSRP Medical] Created bystander at incident')
+    end
+    
     return bystander
 end
 
@@ -58,7 +62,7 @@ AddEventHandler('csrp:medical:spawnBystanders', function(incidentCoords)
         CreateBystander(bystanderCoords, reaction)
     end
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Spawned ' .. numBystanders .. ' bystanders')
     end
 end)
@@ -74,7 +78,7 @@ AddEventHandler('csrp:medical:clearBystanders', function()
     
     activeBystanders = {}
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Cleared all bystanders')
     end
 end)

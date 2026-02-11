@@ -26,7 +26,7 @@ local stressTriggers = {
 function IncreaseStress(amount, reason)
     psychologicalState.stress = math.min(100, psychologicalState.stress + amount)
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Stress increased by ' .. amount .. ' (' .. reason .. '). Current: ' .. psychologicalState.stress)
     end
     
@@ -151,7 +151,7 @@ AddEventHandler('csrp:medical:receivePsychotherapy', function()
         args = {'Mental Health', 'You feel calmer after talking to someone'}
     })
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Received psychotherapy')
     end
 end)
@@ -167,7 +167,7 @@ AddEventHandler('csrp:medical:resetPsychological', function()
         phobias = {}
     }
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Psychological state reset')
     end
 end)

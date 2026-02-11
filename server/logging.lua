@@ -36,7 +36,7 @@ function AddLog(level, category, message, source)
     end
     
     -- Print to console if debug enabled
-    if Config.Debug or level == LogLevel.ERROR then
+    if (Config and Config.Debug) or level == LogLevel.ERROR then
         print(string.format('[CSRP Medical %s] [%s] %s - %s', level, category, message, source))
     end
     
@@ -138,7 +138,8 @@ end)
 -- Get logs (admin command)
 RegisterCommand('getmedlogs', function(source, args, rawCommand)
     -- Check permissions
-    if source == 0 or IsPlayerAceAllowed(source, Config.Permissions.AdminAcePermission) then
+    local adminPerm = (Config and Config.Permissions and Config.Permissions.AdminAcePermission) or 'csrp.medical.admin'
+    if source == 0 or IsPlayerAceAllowed(source, adminPerm) then
         local count = tonumber(args[1]) or 50
         local category = args[2] or nil
         
@@ -177,7 +178,8 @@ end)
 
 -- Clear logs (admin command)
 RegisterCommand('clearmedlogs', function(source, args, rawCommand)
-    if source == 0 or IsPlayerAceAllowed(source, Config.Permissions.AdminAcePermission) then
+    local adminPerm = (Config and Config.Permissions and Config.Permissions.AdminAcePermission) or 'csrp.medical.admin'
+    if source == 0 or IsPlayerAceAllowed(source, adminPerm) then
         local oldCount = #logs
         logs = {}
         

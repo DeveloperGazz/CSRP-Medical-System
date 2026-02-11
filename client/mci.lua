@@ -34,7 +34,7 @@ AddEventHandler('csrp:medical:startMCI', function(location, incidentType)
     -- Spawn bystanders/patients if needed
     TriggerEvent('csrp:medical:spawnBystanders', location)
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] MCI started: ' .. incidentType)
     end
 end)
@@ -56,7 +56,7 @@ AddEventHandler('csrp:medical:endMCI', function()
         TriggerEvent('csrp:medical:clearBystanders')
     end
     
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] MCI ended')
     end
 end)
@@ -82,7 +82,7 @@ AddEventHandler('csrp:medical:triagePatient', function(patientId, category)
         -- Sync to server
         TriggerServerEvent('csrp:medical:syncTriage', patientId, category)
         
-        if Config.Debug then
+        if Config and Config.Debug then
             print('[CSRP Medical] Patient ' .. patientId .. ' triaged as ' .. category)
         end
     end

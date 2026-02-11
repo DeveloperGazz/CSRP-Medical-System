@@ -164,7 +164,7 @@ AddEventHandler('csrp:medical:clearComplication', function(complicationId)
     for i = #activeComplications, 1, -1 do
         if activeComplications[i].id == complicationId then
             table.remove(activeComplications, i)
-            if Config.Debug then
+            if Config and Config.Debug then
                 print('[CSRP Medical] Cleared complication: ' .. complicationId)
             end
         end
@@ -175,7 +175,7 @@ end)
 RegisterNetEvent('csrp:medical:clearAllComplications')
 AddEventHandler('csrp:medical:clearAllComplications', function()
     activeComplications = {}
-    if Config.Debug then
+    if Config and Config.Debug then
         print('[CSRP Medical] Cleared all complications')
     end
 end)
