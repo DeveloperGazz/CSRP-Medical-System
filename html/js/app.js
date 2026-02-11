@@ -158,9 +158,6 @@ function closeMenu(notifyBackend = true) {
     // Guard 1: Prevent multiple simultaneous close calls
     // Fixes "Maximum call stack size exceeded" error
     if (isClosing) {
-    // Guard 1: Prevent multiple simultaneous close calls
-    // Fixes "Maximum call stack size exceeded" error
-    if (isClosing) {
         return;
     }
     
