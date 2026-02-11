@@ -66,7 +66,17 @@ function FormatEquipmentForNUI(equipment)
     
     for key, value in pairs(equipment) do
         -- Always use Config.Equipment for max value to ensure accuracy
-        local maxValue = Config.Equipment and Config.Equipment[key] or 0
+        local maxValue = 0
+        if Config.Equipment and Config.Equipment[key] then
+            maxValue = Config.Equipment[key]
+        else
+            if Config.Debug then
+                print('[CSRP Medical] Warning: Equipment type "' .. key .. '" not found in Config.Equipment')
+            end
+            -- Use current value as fallback for unknown equipment types
+            maxValue = value
+        end
+        
         formatted[key] = {
             name = key,
             current = value,

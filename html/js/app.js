@@ -589,7 +589,7 @@ function updateTreatmentsList(treatments) {
     }
     
     if (!treatments) {
-        console.warn('No treatments data provided');
+        console.warn('No treatments data provided to updateTreatmentsList');
         return;
     }
     
@@ -971,14 +971,33 @@ window.addEventListener('message', (event) => {
                 if (data.patient.vitals) {
                     const vitalsDiv = document.getElementById('patient-vitals');
                     if (vitalsDiv) {
-                        vitalsDiv.innerHTML = `
-                            <div class="vital-row"><strong>HR:</strong> ${data.patient.vitals.heartRate || '--'} BPM</div>
-                            <div class="vital-row"><strong>BP:</strong> ${data.patient.vitals.bloodPressureSystolic || '--'}/${data.patient.vitals.bloodPressureDiastolic || '--'} mmHg</div>
-                            <div class="vital-row"><strong>SpO2:</strong> ${data.patient.vitals.oxygenSaturation || '--'}%</div>
-                            <div class="vital-row"><strong>RR:</strong> ${data.patient.vitals.respiratoryRate || '--'} /min</div>
-                            <div class="vital-row"><strong>Temp:</strong> ${data.patient.vitals.temperature ? data.patient.vitals.temperature.toFixed(1) : '--'}°C</div>
-                            <div class="vital-row"><strong>Consciousness:</strong> ${data.patient.vitals.consciousness || '--'}</div>
-                        `;
+                        // Clear existing content
+                        vitalsDiv.innerHTML = '';
+                        
+                        // Create vitals rows using DOM manipulation to prevent XSS
+                        const vitals = data.patient.vitals;
+                        const vitalRows = [
+                            { label: 'HR:', value: (vitals.heartRate || '--') + ' BPM' },
+                            { label: 'BP:', value: `${vitals.bloodPressureSystolic || '--'}/${vitals.bloodPressureDiastolic || '--'} mmHg` },
+                            { label: 'SpO2:', value: (vitals.oxygenSaturation || '--') + '%' },
+                            { label: 'RR:', value: (vitals.respiratoryRate || '--') + ' /min' },
+                            { label: 'Temp:', value: (vitals.temperature ? vitals.temperature.toFixed(1) : '--') + '°C' },
+                            { label: 'Consciousness:', value: vitals.consciousness || '--' }
+                        ];
+                        
+                        vitalRows.forEach(row => {
+                            const rowDiv = document.createElement('div');
+                            rowDiv.className = 'vital-row';
+                            
+                            const label = document.createElement('strong');
+                            label.textContent = row.label;
+                            rowDiv.appendChild(label);
+                            
+                            const value = document.createTextNode(' ' + row.value);
+                            rowDiv.appendChild(value);
+                            
+                            vitalsDiv.appendChild(rowDiv);
+                        });
                     }
                 }
                 
