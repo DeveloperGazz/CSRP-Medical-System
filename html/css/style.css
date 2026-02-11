@@ -277,6 +277,106 @@ body {
     transform: translateY(0);
 }
 
+/* Scenarios Panel */
+.scenarios-panel {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    border: 2px solid #005EB8;
+    animation: scenarioSlideIn 0.4s ease-out;
+}
+
+.scenarios-panel h3 {
+    color: #005EB8;
+    font-size: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #41B6E6;
+    animation: scenarioFadeIn 0.5s ease-out;
+}
+
+.scenarios-panel .action-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin: 6px 0;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    position: relative;
+    overflow: hidden;
+    animation: scenarioButtonSlide 0.4s ease-out both;
+}
+
+.scenarios-panel .action-btn:nth-child(2) { animation-delay: 0.05s; }
+.scenarios-panel .action-btn:nth-child(3) { animation-delay: 0.10s; }
+.scenarios-panel .action-btn:nth-child(4) { animation-delay: 0.15s; }
+.scenarios-panel .action-btn:nth-child(5) { animation-delay: 0.20s; }
+.scenarios-panel .action-btn:nth-child(6) { animation-delay: 0.25s; }
+.scenarios-panel .action-btn:nth-child(7) { animation-delay: 0.30s; }
+.scenarios-panel .action-btn:nth-child(8) { animation-delay: 0.35s; }
+.scenarios-panel .action-btn:nth-child(9) { animation-delay: 0.40s; }
+
+.scenarios-panel .action-btn:hover {
+    background: #003d82;
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px rgba(0, 94, 184, 0.4);
+}
+
+.scenarios-panel .action-btn:active {
+    transform: translateX(4px) scale(0.98);
+}
+
+.scenarios-panel .action-btn.scenario-triggered {
+    animation: scenarioTrigger 0.6s ease-out;
+    background: #009639;
+}
+
+@keyframes scenarioSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 600px;
+    }
+}
+
+@keyframes scenarioFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scenarioButtonSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scenarioTrigger {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 150, 57, 0.5);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 20px 5px rgba(0, 150, 57, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0, 150, 57, 0.2);
+    }
+}
+
 /* Paramedic Menu */
 .paramedic-content {
     padding: 0;
