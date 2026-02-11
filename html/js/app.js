@@ -7,6 +7,7 @@ let currentMenu = null;
 let patientData = null;
 let equipmentData = null;
 let appElement = null;
+let isClosing = false; // Prevent multiple simultaneous close calls
 
 // ==========================================
 // UTILITY FUNCTIONS
@@ -38,7 +39,12 @@ async function post(url, data = {}) {
         return await response.json();
     } catch (error) {
         // Prevent circular reference issues during error formatting/stringification
-        const errorMsg = error && error.message ? error.message : String(error);
+        let errorMsg = 'Unknown error';
+        try {
+            errorMsg = error && error.message ? error.message : String(error);
+        } catch (stringifyError) {
+            errorMsg = 'Error converting error message';
+        }
         console.error(`Fetch error for ${url}: ${errorMsg}`);
         // Return empty object instead of failing
         return {};
@@ -90,6 +96,7 @@ function toggleDarkMode() {
 
 function openMenu(menuType, data) {
     currentMenu = menuType;
+    isClosing = false; // Reset closing flag when opening a menu
     
     // Show app container
     if (appElement) {
@@ -129,6 +136,18 @@ function openMenu(menuType, data) {
 }
 
 function closeMenu(notifyBackend = true) {
+    // Prevent multiple simultaneous close calls
+    if (isClosing) {
+        return;
+    }
+    
+    // Don't try to close if no menu is open
+    if (!currentMenu) {
+        return;
+    }
+    
+    isClosing = true;
+    
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
@@ -144,6 +163,9 @@ function closeMenu(notifyBackend = true) {
     if (notifyBackend) {
         postNUI('closeMenu', {});
     }
+    
+    // Reset the flag immediately after synchronous operations complete
+    isClosing = false;
 }
 
 // ==========================================
