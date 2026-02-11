@@ -80,6 +80,12 @@ function toggleDarkMode() {
 function openMenu(menuType, data) {
     currentMenu = menuType;
     
+    // Show app container
+    const app = document.getElementById('app');
+    if (app) {
+        app.style.display = 'flex';
+    }
+    
     // Hide all menus first
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
@@ -112,6 +118,13 @@ function closeMenu() {
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
+    
+    // Hide app container
+    const app = document.getElementById('app');
+    if (app) {
+        app.style.display = 'none';
+    }
+    
     currentMenu = null;
     
     // Notify Lua
