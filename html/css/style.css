@@ -29,9 +29,9 @@ body {
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     pointer-events: auto;
-    width: 90%;
-    max-width: 800px;
-    max-height: 85vh;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
     overflow: hidden;
     pointer-events: all;
     animation: slideIn 0.3s ease-out;
@@ -50,7 +50,7 @@ body {
 
 .menu-header {
     background: rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    padding: 25px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -59,7 +59,7 @@ body {
 
 .menu-header h1 {
     color: white;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 600;
 }
 
@@ -85,9 +85,9 @@ body {
 }
 
 .menu-content {
-    padding: 20px;
+    padding: 30px;
     overflow-y: auto;
-    max-height: calc(85vh - 84px);
+    max-height: calc(90vh - 94px);
     background: white;
 }
 
@@ -95,22 +95,22 @@ body {
 .vitals-panel {
     background: #f8f9fa;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
 }
 
 .vitals-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .vital-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 14px;
+    margin: 8px 0;
     background: white;
     border-radius: 5px;
     border-left: 4px solid #005EB8;
@@ -119,15 +119,16 @@ body {
 .vital-label {
     font-weight: 600;
     color: #333;
+    font-size: 16px;
 }
 
 .vital-value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #005EB8;
     flex-grow: 1;
     text-align: right;
-    padding-right: 10px;
+    padding-right: 15px;
 }
 
 .vital-unit {
@@ -152,20 +153,20 @@ body {
 .injuries-panel {
     background: #f8f9fa;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
 }
 
 .injuries-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .injury-item {
     background: white;
-    padding: 12px;
-    margin: 8px 0;
+    padding: 16px;
+    margin: 10px 0;
     border-radius: 5px;
     border-left: 4px solid #DA291C;
 }
@@ -173,13 +174,13 @@ body {
 .injury-name {
     font-weight: 600;
     color: #333;
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .injury-details {
     color: #666;
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 15px;
+    margin-top: 8px;
 }
 
 .injury-severity {
@@ -219,26 +220,26 @@ body {
 
 /* Actions Panel */
 .actions-panel {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .actions-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .action-btn {
     background: #005EB8;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 15px 30px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    margin: 5px;
+    margin: 8px;
 }
 
 .action-btn:hover {
@@ -264,11 +265,11 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 15px;
+    padding: 18px;
     background: transparent;
     border: none;
     color: #666;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -286,7 +287,7 @@ body {
 
 .tab-content {
     display: none;
-    padding: 20px;
+    padding: 30px;
 }
 
 .tab-content.active {
@@ -296,8 +297,8 @@ body {
 /* Patient List */
 .patient-card {
     background: #f8f9fa;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 18px;
+    margin: 12px 0;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
@@ -312,13 +313,13 @@ body {
 .patient-name {
     font-weight: 600;
     color: #333;
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .patient-distance {
     color: #666;
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 15px;
+    margin-top: 8px;
 }
 
 /* Treatment List */
@@ -348,8 +349,8 @@ body {
 
 .treatment-card {
     background: #f8f9fa;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 18px;
+    margin: 12px 0;
     border-radius: 8px;
     border-left: 4px solid #009639;
 }
@@ -357,24 +358,24 @@ body {
 .treatment-name {
     font-weight: 600;
     color: #333;
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .treatment-description {
     color: #666;
-    font-size: 14px;
-    margin: 5px 0;
+    font-size: 15px;
+    margin: 8px 0;
 }
 
 .treatment-btn {
     background: #009639;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .treatment-btn:hover {
@@ -392,14 +393,15 @@ body {
     justify-content: space-between;
     align-items: center;
     background: #f8f9fa;
-    padding: 12px;
-    margin: 8px 0;
+    padding: 16px;
+    margin: 10px 0;
     border-radius: 5px;
 }
 
 .equipment-name {
     font-weight: 600;
     color: #333;
+    font-size: 16px;
 }
 
 .equipment-quantity {
