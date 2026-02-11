@@ -287,6 +287,11 @@ function populateParamedicMenu(data) {
         }
     }
     
+    // Update treatments list if available
+    if (data.treatments) {
+        updateTreatmentsList(data.treatments);
+    }
+    
     // If there's a selected patient, update their information
     if (data.patient) {
         patientData = data.patient;
@@ -567,6 +572,76 @@ function updateEquipmentInventory(equipment) {
         `;
         
         inventory.appendChild(itemDiv);
+    });
+}
+
+function updateTreatmentsList(treatments) {
+    const treatmentsList = document.getElementById('treatments-list');
+    
+    if (!treatmentsList || !treatments) {
+        if (!treatmentsList) console.warn('Treatments list element not found');
+        return;
+    }
+    
+    treatmentsList.innerHTML = '';
+    
+    // Convert treatments object to array for easier processing
+    const treatmentArray = Object.entries(treatments).map(([id, treatment]) => ({
+        id: id,
+        ...treatment
+    }));
+    
+    if (treatmentArray.length === 0) {
+        treatmentsList.innerHTML = '<p class="no-data">No treatments available</p>';
+        return;
+    }
+    
+    // Group by category
+    const categories = {
+        'airway': 'Airway Management',
+        'breathing': 'Breathing Support',
+        'circulation': 'Circulation/Bleeding',
+        'medication': 'Medications',
+        'fracture': 'Fracture/Immobilization',
+        'other': 'Other Interventions'
+    };
+    
+    Object.keys(categories).forEach(categoryKey => {
+        const categoryTreatments = treatmentArray.filter(t => t.category === categoryKey);
+        
+        if (categoryTreatments.length > 0) {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'treatment-category';
+            
+            const categoryTitle = document.createElement('h3');
+            categoryTitle.className = 'treatment-category-title';
+            categoryTitle.textContent = categories[categoryKey];
+            categoryDiv.appendChild(categoryTitle);
+            
+            categoryTreatments.forEach(treatment => {
+                const treatmentCard = document.createElement('div');
+                treatmentCard.className = 'treatment-card';
+                
+                const equipmentNote = treatment.uses_equipment 
+                    ? `<span class="equipment-needed">⚠️ Requires: ${treatment.equipment}</span>` 
+                    : '';
+                
+                treatmentCard.innerHTML = `
+                    <div class="treatment-header">
+                        <strong>${treatment.name}</strong>
+                        ${equipmentNote}
+                    </div>
+                    <div class="treatment-description">${treatment.description || ''}</div>
+                    <button class="btn-apply-treatment" onclick="applyTreatmentById('${treatment.id}')">
+                        Apply Treatment
+                    </button>
+                `;
+                
+                categoryDiv.appendChild(treatmentCard);
+            });
+            
+            treatmentsList.appendChild(categoryDiv);
+        }
     });
 }
 
@@ -960,6 +1035,42 @@ function performSecondarySurvey() {
 function checkVitals() {
     postNUI('checkVitals', {});
     showNotification('Checking vitals...', 'info');
+}
+
+// ==========================================
+// PATIENT SELECTION
+// ==========================================
+
+let selectedPatientId = null;
+
+function selectPatient(patientId) {
+    selectedPatientId = patientId;
+    
+    // Request patient data from backend
+    postNUI('selectPatient', { patientId: patientId });
+    
+    // Show selected patient section
+    const selectedPatientDiv = document.getElementById('selected-patient');
+    if (selectedPatientDiv) {
+        selectedPatientDiv.style.display = 'block';
+    }
+    
+    showNotification('Patient selected', 'success');
+}
+
+function applyTreatmentById(treatmentId) {
+    if (!selectedPatientId) {
+        showNotification('Please select a patient first', 'warning');
+        return;
+    }
+    
+    // Apply treatment to selected patient
+    postNUI('applyTreatment', { 
+        targetId: selectedPatientId, 
+        treatmentId: treatmentId 
+    });
+    
+    showNotification('Applying treatment...', 'info');
 }
 
 // ==========================================

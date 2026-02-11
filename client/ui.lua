@@ -44,7 +44,7 @@ function ToggleParamedicMenu()
             action = 'openMenu',
             menuType = 'paramedic',
             data = {
-                equipment = GetParamedicEquipment(),
+                equipment = FormatEquipmentForNUI(GetParamedicEquipment()),
                 nearbyPlayers = nearbyPlayers,
                 treatments = Treatments.Definitions
             }
@@ -54,6 +54,26 @@ function ToggleParamedicMenu()
             action = 'closeMenu'
         })
     end
+end
+
+-- Format equipment for NUI display
+function FormatEquipmentForNUI(equipment)
+    local formatted = {}
+    
+    if not equipment then
+        return formatted
+    end
+    
+    for key, value in pairs(equipment) do
+        local maxValue = Config.Equipment[key] or value
+        formatted[key] = {
+            name = key,
+            current = value,
+            max = maxValue
+        }
+    end
+    
+    return formatted
 end
 
 -- Get nearby players
@@ -146,6 +166,16 @@ end)
 RegisterNUICallback('defibrillate', function(data, cb)
     if data.targetId then
         Defibrillate(data.targetId)
+        cb('ok')
+    else
+        cb('error')
+    end
+end)
+
+RegisterNUICallback('selectPatient', function(data, cb)
+    if data.patientId then
+        -- Request patient data from server
+        TriggerServerEvent('csrp_medical:requestPatientData', data.patientId)
         cb('ok')
     else
         cb('error')
