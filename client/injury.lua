@@ -113,6 +113,50 @@ function ClearAllInjuries()
     end
 end
 
+-- Convert severity number to string for NUI
+function GetSeverityString(severityLevel)
+    if severityLevel == Injuries.Severity.MINOR then
+        return 'minor'
+    elseif severityLevel == Injuries.Severity.MODERATE then
+        return 'moderate'
+    elseif severityLevel == Injuries.Severity.SEVERE then
+        return 'severe'
+    elseif severityLevel == Injuries.Severity.CRITICAL then
+        return 'critical'
+    else
+        return 'moderate'
+    end
+end
+
+-- Convert injury data for NUI (to ensure compatibility with JavaScript)
+function ConvertInjuryForNUI(injury)
+    return {
+        id = injury.id,
+        type = injury.type,
+        name = injury.name or injury.type,
+        zone = injury.zone,
+        bodyZone = injury.zone,  -- Duplicate for JS compatibility
+        severity = GetSeverityString(injury.severity),
+        severityLevel = injury.severity,  -- Keep numeric for Lua
+        timestamp = injury.timestamp,
+        bleeding = injury.bleeding,
+        treated = injury.treated,
+        treatments = injury.treatments
+    }
+end
+
+-- Get injuries formatted for NUI
+function GetInjuriesForNUI()
+    local injuries = GetPlayerInjuries()
+    local formatted = {}
+    
+    for _, injury in ipairs(injuries) do
+        table.insert(formatted, ConvertInjuryForNUI(injury))
+    end
+    
+    return formatted
+end
+
 -- Register network events
 RegisterNetEvent('csrp_medical:addInjury')
 AddEventHandler('csrp_medical:addInjury', function(injuryType, bodyZone, severity)

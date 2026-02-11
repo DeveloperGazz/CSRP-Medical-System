@@ -12,6 +12,14 @@ let appElement = null;
 // UTILITY FUNCTIONS
 // ==========================================
 
+// GetParentResourceName for FiveM NUI - mock for browser dev mode
+function GetParentResourceName() {
+    if (window.GetParentResourceName) {
+        return window.GetParentResourceName();
+    }
+    return 'csrp-medical-system';
+}
+
 // Safe fetch wrapper with error handling
 async function post(url, data = {}) {
     try {
