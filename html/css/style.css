@@ -2,6 +2,7 @@
 
 :root {
     --scroll-indicator-color: rgba(0, 94, 184, 0.2);
+    --tab-content-offset: 160px; /* Header height + tab navigation height */
 }
 
 * {
@@ -292,8 +293,8 @@ body {
 .tab-content {
     display: none;
     padding: 30px;
-    /* Height calculation: 90vh (menu height) - 160px (header ~94px + tabs ~66px) */
-    max-height: calc(90vh - 160px);
+    /* Dynamic height: menu max-height (90vh) minus header and tabs */
+    max-height: calc(90vh - var(--tab-content-offset));
     overflow-y: auto;
     /* Scroll indicators: gradients that fade in/out to show scrollable content */
     background: linear-gradient(white 30%, rgba(255,255,255,0)),
