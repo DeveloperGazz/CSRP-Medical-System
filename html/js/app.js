@@ -212,14 +212,22 @@ function createInjuryCard(injury) {
 // ==========================================
 
 function populateParamedicMenu(data) {
+    // Ensure data and data.patient exist
+    if (!data || !data.patient) {
+        console.error('Invalid paramedic menu data:', data);
+        return;
+    }
+    
     patientData = data.patient;
     equipmentData = data.equipment;
     
     // Update patient info header
     updatePatientHeader(data.patient);
     
-    // Update vitals
-    updateVitalsDisplay('paramedic', data.patient.vitals);
+    // Update vitals (with null check)
+    if (data.patient.vitals) {
+        updateVitalsDisplay('paramedic', data.patient.vitals);
+    }
     
     // Update body map
     updateBodyMap(data.patient.injuries);
@@ -622,6 +630,76 @@ function showNotification(message, type = 'info') {
 
 function requestResupply() {
     postNUI('requestResupply', {});
+}
+
+// ==========================================
+// TAB SYSTEM
+// ==========================================
+
+function showTab(tabName, buttonElement) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    const selectedTab = document.getElementById(`${tabName}-tab`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Add active class to clicked button
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+}
+
+// ==========================================
+// PATIENT ACTIONS
+// ==========================================
+
+function requestHelp() {
+    postNUI('requestHelp', {});
+    showNotification('Help request sent', 'success');
+}
+
+function performABCDE() {
+    postNUI('performABCDE', {});
+    showNotification('Performing ABCDE assessment...', 'info');
+}
+
+function performSecondarySurvey() {
+    postNUI('performSecondarySurvey', {});
+    showNotification('Starting secondary survey...', 'info');
+}
+
+function checkVitals() {
+    postNUI('checkVitals', {});
+    showNotification('Checking vitals...', 'info');
+}
+
+// ==========================================
+// TREATMENT FILTERS
+// ==========================================
+
+function filterTreatments(category, buttonElement) {
+    // Remove active class from all category buttons
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+    
+    // Send filter request to backend
+    postNUI('filterTreatments', { category: category });
 }
 
 // ==========================================
