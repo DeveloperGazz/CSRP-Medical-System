@@ -180,7 +180,11 @@ function populatePatientMenu(data) {
 
 function createInjuryCard(injury) {
     const card = document.createElement('div');
-    card.className = 'injury-card severity-' + injury.severity;
+    card.className = 'injury-card severity-' + (injury.severity || 'moderate');
+    
+    // Handle both 'zone' and 'bodyZone' properties
+    const bodyZone = injury.bodyZone || injury.zone || 'Unknown';
+    const injuryName = injury.name || injury.type || 'Unknown Injury';
     
     card.innerHTML = `
         <div class="injury-header">
@@ -188,11 +192,11 @@ function createInjuryCard(injury) {
                 <i class="${getInjuryIcon(injury.type)}"></i>
             </div>
             <div class="injury-info">
-                <h3>${injury.name}</h3>
-                <span class="injury-location">${injury.bodyZone}</span>
+                <h3>${injuryName}</h3>
+                <span class="injury-location">${bodyZone}</span>
             </div>
             <div class="injury-severity">
-                <span class="severity-badge ${injury.severity}">${injury.severity}</span>
+                <span class="severity-badge ${injury.severity}">${injury.severity || 'moderate'}</span>
             </div>
         </div>
         <div class="injury-body">
@@ -403,10 +407,13 @@ function updateBodyMap(injuries) {
     // Highlight injured body parts
     if (injuries && injuries.length > 0) {
         injuries.forEach(injury => {
-            const bodyPart = document.getElementById(`bodyPart-${injury.bodyZone}`);
+            // Handle both 'zone' and 'bodyZone' properties
+            const bodyZone = injury.bodyZone || injury.zone;
+            const bodyPart = document.getElementById(`bodyPart-${bodyZone}`);
+            
             if (bodyPart) {
                 bodyPart.classList.add('injured');
-                bodyPart.classList.add('severity-' + injury.severity);
+                bodyPart.classList.add('severity-' + (injury.severity || 'moderate'));
                 
                 // Add click handler
                 bodyPart.onclick = () => showInjuryDetails(injury);
@@ -435,14 +442,19 @@ function updateParamedicInjuryList(injuries) {
     
     injuries.forEach((injury, index) => {
         const injuryRow = document.createElement('div');
-        injuryRow.className = 'injury-row severity-' + injury.severity;
+        injuryRow.className = 'injury-row severity-' + (injury.severity || 'moderate');
+        
+        // Handle both 'zone' and 'bodyZone' properties
+        const bodyZone = injury.bodyZone || injury.zone || 'Unknown';
+        const injuryName = injury.name || injury.type || 'Unknown Injury';
+        
         injuryRow.innerHTML = `
             <div class="injury-number">${index + 1}</div>
             <div class="injury-details">
-                <strong>${injury.name || injury.type}</strong>
-                <span class="injury-zone">${injury.bodyZone}</span>
+                <strong>${injuryName}</strong>
+                <span class="injury-zone">${bodyZone}</span>
             </div>
-            <div class="injury-severity-badge ${injury.severity}">${injury.severity}</div>
+            <div class="injury-severity-badge ${injury.severity || 'moderate'}">${injury.severity || 'moderate'}</div>
             <button class="btn-treat" onclick="openTreatmentMenu(${index})">Treat</button>
         `;
         list.appendChild(injuryRow);
@@ -697,11 +709,15 @@ function populateEquipmentMenu(data) {
 function showInjuryDetails(injury) {
     console.log('Show injury details:', injury);
     
+    // Handle both 'zone' and 'bodyZone' properties
+    const bodyZone = injury.bodyZone || injury.zone || 'Unknown';
+    const injuryName = injury.name || injury.type || 'Unknown Injury';
+    
     // Create a simple modal/notification showing injury details
     const details = `
-        Injury: ${injury.name || injury.type}
-        Location: ${injury.bodyZone}
-        Severity: ${injury.severity}
+        Injury: ${injuryName}
+        Location: ${bodyZone}
+        Severity: ${injury.severity || 'moderate'}
         ${injury.symptoms ? 'Symptoms: ' + injury.symptoms.join(', ') : ''}
     `;
     
