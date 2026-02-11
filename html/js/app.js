@@ -7,6 +7,7 @@ let currentMenu = null;
 let patientData = null;
 let equipmentData = null;
 let appElement = null;
+let isClosing = false; // Prevent multiple simultaneous close calls
 
 // ==========================================
 // UTILITY FUNCTIONS
@@ -129,6 +130,18 @@ function openMenu(menuType, data) {
 }
 
 function closeMenu(notifyBackend = true) {
+    // Prevent multiple simultaneous close calls
+    if (isClosing) {
+        return;
+    }
+    
+    // Don't try to close if no menu is open
+    if (!currentMenu && appElement && appElement.style.display === 'none') {
+        return;
+    }
+    
+    isClosing = true;
+    
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
@@ -144,6 +157,11 @@ function closeMenu(notifyBackend = true) {
     if (notifyBackend) {
         postNUI('closeMenu', {});
     }
+    
+    // Reset the flag after a short delay to allow the close operation to complete
+    setTimeout(() => {
+        isClosing = false;
+    }, 100);
 }
 
 // ==========================================
