@@ -111,6 +111,10 @@ function openMenu(menuType, data) {
                 populateEquipmentMenu(data);
                 break;
         }
+    } else {
+        console.warn(`Menu container #${menuType}Menu not found in DOM`);
+        // If the specific menu doesn't exist, try to show what we have
+        // For now, just log and continue - the system will still function with available menus
     }
 }
 
@@ -137,11 +141,13 @@ function closeMenu() {
 function populatePatientMenu(data) {
     patientData = data;
     
-    // Update vitals display
-    updateVitalsDisplay('patient', data.vitals);
+    // Update vitals display  
+    if (data.vitals) {
+        updateVitalsDisplay('patient', data.vitals);
+    }
     
-    // Update injuries list
-    const injuriesList = document.getElementById('patientInjuriesList');
+    // Update injuries list - using 'injuries-list' from index.html
+    const injuriesList = document.getElementById('injuries-list');
     if (injuriesList) {
         injuriesList.innerHTML = '';
         
@@ -155,7 +161,7 @@ function populatePatientMenu(data) {
         }
     }
     
-    // Update pain level
+    // Update pain level if elements exist
     const painLevel = document.getElementById('painLevel');
     const painBar = document.getElementById('painBar');
     if (painLevel && painBar && data.pain) {
@@ -164,7 +170,7 @@ function populatePatientMenu(data) {
         painBar.className = 'pain-bar ' + getPainClass(data.pain);
     }
     
-    // Update condition
+    // Update condition if element exists
     const conditionText = document.getElementById('conditionText');
     if (conditionText && data.condition) {
         conditionText.textContent = data.condition;
@@ -226,28 +232,57 @@ function populateParamedicMenu(data) {
         updateEquipmentInventory(data.equipment);
     }
     
+    // Update nearby players list if available
+    if (data.nearbyPlayers) {
+        const playersList = document.getElementById('patients-list');
+        if (playersList) {
+            if (data.nearbyPlayers.length > 0) {
+                playersList.innerHTML = data.nearbyPlayers.map(player => 
+                    `<div class="patient-item" onclick="selectPatient(${player.serverId})">
+                        <strong>${player.name}</strong>
+                        <span class="distance">${player.distance}m</span>
+                    </div>`
+                ).join('');
+            } else {
+                playersList.innerHTML = '<p class="no-data">No patients nearby</p>';
+            }
+        }
+    }
+    
     // If there's a selected patient, update their information
     if (data.patient) {
         patientData = data.patient;
         
-        // Update patient info header
-        updatePatientHeader(data.patient);
+        // Update patient info header if element exists
+        const patientHeader = document.getElementById('patientHeader');
+        if (patientHeader) {
+            updatePatientHeader(data.patient);
+        }
         
         // Update vitals (with null check)
         if (data.patient.vitals) {
             updateVitalsDisplay('paramedic', data.patient.vitals);
         }
         
-        // Update body map (with null check)
+        // Update body map (with null check) if element exists
         if (data.patient.injuries) {
-            updateBodyMap(data.patient.injuries);
+            const bodyMapElement = document.querySelector('.body-map');
+            if (bodyMapElement) {
+                updateBodyMap(data.patient.injuries);
+            }
         }
         
-        // Update injury list
-        updateParamedicInjuryList(data.patient.injuries);
+        // Update injury list if element exists
+        const injuryListElement = document.getElementById('patient-injuries');
+        if (injuryListElement && data.patient.injuries) {
+            updateParamedicInjuryList(data.patient.injuries);
+        }
         
-        // Update assessment checklist
-        updateAssessmentChecklist(data.patient.assessments);
+        // Update assessment checklist if element exists
+        const assessmentElement = document.getElementById('assessmentChecklist');
+        if (assessmentElement && data.patient.assessments) {
+            updateAssessmentChecklist(data.patient.assessments);
+        }
     }
 }
 
@@ -274,30 +309,80 @@ function updatePatientHeader(patient) {
 function updateVitalsDisplay(context, vitals) {
     if (!vitals) return;
     
-    const prefix = context === 'paramedic' ? 'para' : 'patient';
-    
-    // Heart Rate
-    updateVitalElement(`${prefix}HeartRate`, vitals.heartRate, 'bpm', getHRClass(vitals.heartRate));
-    
-    // Blood Pressure
-    const bpElement = document.getElementById(`${prefix}BloodPressure`);
-    if (bpElement) {
-        bpElement.textContent = `${vitals.bpSystolic}/${vitals.bpDiastolic}`;
-        bpElement.className = 'vital-value ' + getBPClass(vitals.bpSystolic);
+    // For patient menu in index.html, use simple IDs: hr, bp, spo2, rr, temp, consciousness
+    if (context === 'patient') {
+        // Heart Rate
+        const hrElement = document.getElementById('hr');
+        if (hrElement) {
+            hrElement.textContent = vitals.heartRate || '--';
+            hrElement.className = 'vital-value ' + getHRClass(vitals.heartRate);
+        }
+        
+        // Blood Pressure  
+        const bpElement = document.getElementById('bp');
+        if (bpElement) {
+            const systolic = vitals.bpSystolic || vitals.bloodPressureSystolic || '--';
+            const diastolic = vitals.bpDiastolic || vitals.bloodPressureDiastolic || '--';
+            bpElement.textContent = `${systolic}/${diastolic}`;
+            bpElement.className = 'vital-value ' + getBPClass(systolic);
+        }
+        
+        // SpO2
+        const spo2Element = document.getElementById('spo2');
+        if (spo2Element) {
+            spo2Element.textContent = vitals.spo2 || vitals.oxygenSaturation || '--';
+            spo2Element.className = 'vital-value ' + getSpO2Class(vitals.spo2);
+        }
+        
+        // Respiratory Rate
+        const rrElement = document.getElementById('rr');
+        if (rrElement) {
+            rrElement.textContent = vitals.respiratoryRate || '--';
+            rrElement.className = 'vital-value ' + getRRClass(vitals.respiratoryRate);
+        }
+        
+        // Temperature
+        const tempElement = document.getElementById('temp');
+        if (tempElement) {
+            tempElement.textContent = vitals.temperature ? vitals.temperature.toFixed(1) : '--';
+            tempElement.className = 'vital-value ' + getTempClass(vitals.temperature);
+        }
+        
+        // Consciousness
+        const consciousnessElement = document.getElementById('consciousness');
+        if (consciousnessElement) {
+            consciousnessElement.textContent = vitals.consciousness || '--';
+            consciousnessElement.className = 'vital-value ' + getConsciousnessClass(vitals.consciousness);
+        }
+    } else {
+        // For paramedic menu, use prefixed IDs
+        const prefix = 'para';
+        
+        // Heart Rate
+        updateVitalElement(`${prefix}HeartRate`, vitals.heartRate, 'bpm', getHRClass(vitals.heartRate));
+        
+        // Blood Pressure
+        const bpElement = document.getElementById(`${prefix}BloodPressure`);
+        if (bpElement) {
+            const systolic = vitals.bpSystolic || vitals.bloodPressureSystolic || 0;
+            const diastolic = vitals.bpDiastolic || vitals.bloodPressureDiastolic || 0;
+            bpElement.textContent = `${systolic}/${diastolic}`;
+            bpElement.className = 'vital-value ' + getBPClass(systolic);
+        }
+        
+        // Respiratory Rate
+        updateVitalElement(`${prefix}RespiratoryRate`, vitals.respiratoryRate, '/min', getRRClass(vitals.respiratoryRate));
+        
+        // SpO2
+        updateVitalElement(`${prefix}SpO2`, vitals.spo2 || vitals.oxygenSaturation, '%', getSpO2Class(vitals.spo2));
+        
+        // Temperature
+        updateVitalElement(`${prefix}Temperature`, vitals.temperature, '°C', getTempClass(vitals.temperature));
     }
     
-    // Respiratory Rate
-    updateVitalElement(`${prefix}RespiratoryRate`, vitals.respiratoryRate, '/min', getRRClass(vitals.respiratoryRate));
-    
-    // SpO2
-    updateVitalElement(`${prefix}SpO2`, vitals.spo2, '%', getSpO2Class(vitals.spo2));
-    
-    // Temperature
-    updateVitalElement(`${prefix}Temperature`, vitals.temperature, '°C', getTempClass(vitals.temperature));
-    
-    // Update vital trend arrows if available
+    // Update vital trend arrows if available (optional feature)
     if (vitals.trends) {
-        updateVitalTrends(prefix, vitals.trends);
+        updateVitalTrends(context, vitals.trends);
     }
 }
 
@@ -331,8 +416,15 @@ function updateBodyMap(injuries) {
 }
 
 function updateParamedicInjuryList(injuries) {
-    const list = document.getElementById('paramedicInjuryList');
-    if (!list) return;
+    // Try multiple possible element IDs
+    const list = document.getElementById('patient-injuries') || 
+                 document.getElementById('paramedicInjuryList') ||
+                 document.getElementById('paramedic-injuries-list');
+    
+    if (!list) {
+        console.warn('Paramedic injury list element not found');
+        return;
+    }
     
     list.innerHTML = '';
     
@@ -347,7 +439,7 @@ function updateParamedicInjuryList(injuries) {
         injuryRow.innerHTML = `
             <div class="injury-number">${index + 1}</div>
             <div class="injury-details">
-                <strong>${injury.name}</strong>
+                <strong>${injury.name || injury.type}</strong>
                 <span class="injury-zone">${injury.bodyZone}</span>
             </div>
             <div class="injury-severity-badge ${injury.severity}">${injury.severity}</div>
@@ -358,8 +450,15 @@ function updateParamedicInjuryList(injuries) {
 }
 
 function updateEquipmentInventory(equipment) {
-    const inventory = document.getElementById('equipmentInventory');
-    if (!inventory || !equipment) return;
+    // Try multiple possible element IDs
+    const inventory = document.getElementById('equipment-list') ||
+                     document.getElementById('equipmentInventory') ||
+                     document.getElementById('paramedic-equipment-list');
+                     
+    if (!inventory || !equipment) {
+        if (!inventory) console.warn('Equipment inventory element not found');
+        return;
+    }
     
     inventory.innerHTML = '';
     
@@ -416,7 +515,16 @@ function updateAssessmentChecklist(assessments) {
 
 function populateMCIMenu(data) {
     const patientGrid = document.getElementById('mciPatientGrid');
-    if (!patientGrid || !data.patients) return;
+    
+    if (!patientGrid) {
+        console.warn('MCI patient grid element not found');
+        return;
+    }
+    
+    if (!data.patients) {
+        patientGrid.innerHTML = '<p class="no-data">No patients in MCI</p>';
+        return;
+    }
     
     patientGrid.innerHTML = '';
     
@@ -430,9 +538,9 @@ function populateMCIMenu(data) {
             </div>
             <div class="mci-card-body">
                 <div class="mci-vitals-mini">
-                    <span>HR: ${patient.vitals.heartRate || '?'}</span>
-                    <span>BP: ${patient.vitals.bpSystolic || '?'}/${patient.vitals.bpDiastolic || '?'}</span>
-                    <span>SpO2: ${patient.vitals.spo2 || '?'}%</span>
+                    <span>HR: ${patient.vitals && patient.vitals.heartRate || '?'}</span>
+                    <span>BP: ${patient.vitals && patient.vitals.bpSystolic || '?'}/${patient.vitals && patient.vitals.bpDiastolic || '?'}</span>
+                    <span>SpO2: ${patient.vitals && patient.vitals.spo2 || '?'}%</span>
                 </div>
                 <div class="mci-injury-count">${patient.injuryCount || 0} injuries</div>
             </div>
@@ -563,6 +671,76 @@ function getEquipmentIcon(key) {
         'medication': 'fas fa-pills'
     };
     return icons[key] || 'fas fa-medkit';
+}
+
+// ==========================================
+// MISSING FUNCTION IMPLEMENTATIONS
+// ==========================================
+
+// Populate equipment menu (standalone menu type)
+function populateEquipmentMenu(data) {
+    console.log('Equipment menu data:', data);
+    
+    // If equipment menu doesn't exist in DOM, just log it
+    const equipmentMenu = document.getElementById('equipmentMenu');
+    if (!equipmentMenu) {
+        console.warn('Equipment menu container not found in DOM');
+        return;
+    }
+    
+    if (data.equipment) {
+        updateEquipmentInventory(data.equipment);
+    }
+}
+
+// Show injury details in a modal or panel
+function showInjuryDetails(injury) {
+    console.log('Show injury details:', injury);
+    
+    // Create a simple modal/notification showing injury details
+    const details = `
+        Injury: ${injury.name || injury.type}
+        Location: ${injury.bodyZone}
+        Severity: ${injury.severity}
+        ${injury.symptoms ? 'Symptoms: ' + injury.symptoms.join(', ') : ''}
+    `;
+    
+    showNotification(details, 'info');
+}
+
+// Update vital sign trend indicators (arrows showing if values are improving/declining)
+function updateVitalTrends(context, trends) {
+    if (!trends) return;
+    
+    // This is an optional feature - if trend elements don't exist, skip silently
+    const prefix = context === 'paramedic' ? 'para' : 'patient';
+    
+    // Try to update trend indicators if they exist
+    const trendElements = {
+        heartRate: document.getElementById(`${prefix}HRTrend`),
+        bloodPressure: document.getElementById(`${prefix}BPTrend`),
+        respiratoryRate: document.getElementById(`${prefix}RRTrend`),
+        spo2: document.getElementById(`${prefix}SpO2Trend`),
+        temperature: document.getElementById(`${prefix}TempTrend`)
+    };
+    
+    // Update each trend indicator if element exists
+    Object.keys(trends).forEach(key => {
+        const element = trendElements[key];
+        if (element) {
+            const trend = trends[key];
+            if (trend > 0) {
+                element.innerHTML = '↑';
+                element.className = 'trend-up';
+            } else if (trend < 0) {
+                element.innerHTML = '↓';
+                element.className = 'trend-down';
+            } else {
+                element.innerHTML = '→';
+                element.className = 'trend-stable';
+            }
+        }
+    });
 }
 
 // ==========================================
