@@ -1166,7 +1166,8 @@ function startMedicalRP() {
     // Check if scenario panel already exists and toggle it
     let scenarioPanel = document.getElementById('scenario-selection');
     if (scenarioPanel) {
-        scenarioPanel.style.display = scenarioPanel.style.display === 'none' ? 'block' : 'none';
+        var isHidden = scenarioPanel.style.display === 'none' || scenarioPanel.style.display === '';
+        scenarioPanel.style.display = isHidden ? 'block' : 'none';
         return;
     }
 
