@@ -155,30 +155,40 @@ function openMenu(menuType, data) {
  * 2. currentMenu check prevents closing when nothing is open
  */
 function closeMenu(notifyBackend = true) {
+    console.log('[CSRP Medical Debug] closeMenu called - notifyBackend:', notifyBackend, 'isClosing:', isClosing, 'currentMenu:', currentMenu);
+    
     // Guard 1: Prevent multiple simultaneous close calls
     // Fixes "Maximum call stack size exceeded" error
     if (isClosing) {
+        console.log('[CSRP Medical Debug] closeMenu blocked - already closing');
         return;
     }
     
     // Guard 2: Don't try to close if no menu is open
     // Prevents unnecessary operations
     if (!currentMenu) {
+        console.log('[CSRP Medical Debug] closeMenu blocked - no menu is open');
         return;
     }
     
     isClosing = true;  // Set flag during close operation
     
     // Hide all menu containers
-    document.querySelectorAll('.menu-container').forEach(menu => {
+    const menuContainers = document.querySelectorAll('.menu-container');
+    console.log('[CSRP Medical Debug] Hiding', menuContainers.length, 'menu containers');
+    menuContainers.forEach(menu => {
         menu.style.display = 'none';
     });
     
     // Hide app container
     if (appElement) {
         appElement.style.display = 'none';
+        console.log('[CSRP Medical Debug] App container hidden');
+    } else {
+        console.warn('[CSRP Medical Debug] appElement is null - cannot hide app container');
     }
     
+    const previousMenu = currentMenu;
     currentMenu = null;  // Clear current menu state
     
     // Reset selected patient when closing paramedic menu
@@ -190,11 +200,15 @@ function closeMenu(notifyBackend = true) {
     // When user closes: notifyBackend = true → Tell Lua to call SetNuiFocus(false, false)
     // When Lua closes: notifyBackend = false → Don't callback to Lua (already knows)
     if (notifyBackend) {
+        console.log('[CSRP Medical Debug] Notifying backend to release NUI focus (was:', previousMenu, ')');
         postNUI('closeMenu', {});
+    } else {
+        console.log('[CSRP Medical Debug] Backend-initiated close, skipping NUI callback (was:', previousMenu, ')');
     }
     
     // Reset the flag immediately after synchronous operations complete
     isClosing = false;
+    console.log('[CSRP Medical Debug] closeMenu complete - isClosing reset to false');
 }
 
 // ==========================================
@@ -983,6 +997,7 @@ window.addEventListener('message', (event) => {
             openMenu(data.menuType, data.data);
             break;
         case 'closeMenu':
+            console.log('[CSRP Medical Debug] Received closeMenu message from Lua backend');
             closeMenu(false); // Don't notify backend - it already knows
             break;
         case 'updateVitals':
@@ -1058,6 +1073,7 @@ window.addEventListener('message', (event) => {
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+        console.log('[CSRP Medical Debug] Escape key pressed - currentMenu:', currentMenu);
         closeMenu();
     }
 });
@@ -1125,6 +1141,68 @@ function showTab(tabName, buttonElement) {
 function requestHelp() {
     postNUI('requestHelp', {});
     showNotification('Help request sent', 'success');
+}
+
+function startMedicalRP() {
+    console.log('[CSRP Medical] Start Medical RP button clicked');
+    // Show scenario selection in the patient menu
+    const scenarioOptions = [
+        { id: 'heart_attack', name: '💔 Heart Attack' },
+        { id: 'cardiac_arrest', name: '🫀 Cardiac Arrest' },
+        { id: 'seizure', name: '⚡ Seizure' },
+        { id: 'stroke', name: '🧠 Stroke' },
+        { id: 'asthma_attack', name: '🫁 Asthma Attack' },
+        { id: 'anaphylaxis', name: '💉 Anaphylaxis' },
+        { id: 'overdose', name: '💊 Overdose' }
+    ];
+
+    // Find the actions panel (index.html patient menu) and add scenario buttons
+    const actionsPanel = document.querySelector('#patientMenu .actions-panel');
+    if (!actionsPanel) {
+        console.warn('[CSRP Medical] Actions panel not found');
+        return;
+    }
+
+    // Check if scenario panel already exists and toggle it
+    let scenarioPanel = document.getElementById('scenario-selection');
+    if (scenarioPanel) {
+        var isHidden = scenarioPanel.style.display === 'none' || scenarioPanel.style.display === '';
+        scenarioPanel.style.display = isHidden ? 'block' : 'none';
+        return;
+    }
+
+    // Create the scenario selection panel using DOM methods to prevent XSS
+    scenarioPanel = document.createElement('div');
+    scenarioPanel.id = 'scenario-selection';
+    scenarioPanel.className = 'scenarios-panel';
+
+    const header = document.createElement('h3');
+    header.textContent = '🎭 Select Medical Scenario';
+    scenarioPanel.appendChild(header);
+
+    scenarioOptions.forEach(function(scenario) {
+        const btn = document.createElement('button');
+        btn.className = 'action-btn';
+        btn.textContent = scenario.name;
+        btn.addEventListener('click', function() {
+            console.log('[CSRP Medical] Triggering scenario: ' + scenario.id);
+            postNUI('triggerScenario', { scenarioId: scenario.id });
+            showNotification('Starting scenario: ' + scenario.name, 'info');
+            scenarioPanel.style.display = 'none';
+        });
+        scenarioPanel.appendChild(btn);
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'action-btn';
+    cancelBtn.textContent = '❌ Cancel';
+    cancelBtn.style.marginTop = '10px';
+    cancelBtn.addEventListener('click', function() {
+        scenarioPanel.style.display = 'none';
+    });
+    scenarioPanel.appendChild(cancelBtn);
+
+    actionsPanel.appendChild(scenarioPanel);
 }
 
 function performABCDE() {

@@ -81,6 +81,10 @@
                         <span class="btn-icon">🚨</span>
                         Request Help
                     </button>
+                    <button class="action-btn" onclick="startMedicalRP()">
+                        <span class="btn-icon">🎭</span>
+                        Start Medical RP
+                    </button>
                     <button class="action-btn" onclick="viewTreatments()">
                         <span class="btn-icon">💊</span>
                         View Treatments
@@ -90,6 +94,45 @@
                         Check Condition
                     </button>
                 </div>
+            </div>
+            
+            <!-- Medical RP Scenario Selection -->
+            <div id="scenario-panel" class="scenarios-panel" style="display: none;">
+                <h2>🎭 Select Medical Scenario</h2>
+                <div class="button-grid">
+                    <button class="action-btn" onclick="triggerScenario('heart_attack')">
+                        <span class="btn-icon">💔</span>
+                        Heart Attack
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('cardiac_arrest')">
+                        <span class="btn-icon">🫀</span>
+                        Cardiac Arrest
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('seizure')">
+                        <span class="btn-icon">⚡</span>
+                        Seizure
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('stroke')">
+                        <span class="btn-icon">🧠</span>
+                        Stroke
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('asthma_attack')">
+                        <span class="btn-icon">🫁</span>
+                        Asthma Attack
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('anaphylaxis')">
+                        <span class="btn-icon">💉</span>
+                        Anaphylaxis
+                    </button>
+                    <button class="action-btn" onclick="triggerScenario('overdose')">
+                        <span class="btn-icon">💊</span>
+                        Overdose
+                    </button>
+                </div>
+                <button class="action-btn" onclick="hideScenarioPanel()" style="margin-top: 10px;">
+                    <span class="btn-icon">❌</span>
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
@@ -125,6 +168,31 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({})
             });
+        }
+        
+        function startMedicalRP() {
+            var panel = document.getElementById('scenario-panel');
+            if (panel) {
+                var isHidden = panel.style.display === 'none' || panel.style.display === '';
+                panel.style.display = isHidden ? 'block' : 'none';
+            }
+        }
+        
+        function hideScenarioPanel() {
+            var panel = document.getElementById('scenario-panel');
+            if (panel) {
+                panel.style.display = 'none';
+            }
+        }
+        
+        function triggerScenario(scenarioId) {
+            console.log('[CSRP Medical] Triggering scenario: ' + scenarioId);
+            fetch('https://csrp-medical-system/triggerScenario', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ scenarioId: scenarioId })
+            });
+            hideScenarioPanel();
         }
         
         // Listen for data updates
