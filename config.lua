@@ -91,6 +91,7 @@ Config.Animations = {
 -- ==========================================
 
 Config.Hospitals = {
+    -- resupply: enables equipment resupply when paramedic is near this location
     {coords = vector3(298.6, -584.5, 43.3), radius = 10.0, name = 'Pillbox Hill Medical Center', resupply = true},
     {coords = vector3(-247.8, 6331.5, 32.4), radius = 10.0, name = 'Paleto Bay Medical Center', resupply = true},
     {coords = vector3(1839.6, 3672.9, 34.3), radius = 10.0, name = 'Sandy Shores Medical Center', resupply = true}

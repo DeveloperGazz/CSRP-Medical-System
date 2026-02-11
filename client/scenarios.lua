@@ -144,7 +144,8 @@ function TriggerMedicalScenario(scenarioId)
     if scenario.animation then
         RequestAnimDict(scenario.animation.dict)
         local timeout = 0
-        while not HasAnimDictLoaded(scenario.animation.dict) and timeout < 50 do
+        local maxLoadAttempts = 50 -- 50 * 100ms = 5 second timeout for animation loading
+        while not HasAnimDictLoaded(scenario.animation.dict) and timeout < maxLoadAttempts do
             Wait(100)
             timeout = timeout + 1
         end

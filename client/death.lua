@@ -180,6 +180,7 @@ Citizen.CreateThread(function()
                 local timeDown = (GetGameTimer() - lastDeathTime) / 1000
                 if timeDown >= Config.DeathSystem.RespawnTimer then
                     -- Show respawn hint after timer
+                    -- DisplayHelpText is defined in client/main.lua
                     DisplayHelpText('Press ~INPUT_PICKUP~ to respawn or wait for paramedics')
                     if IsControlJustReleased(0, 38) then -- E key
                         RespawnPlayer()
@@ -199,8 +200,6 @@ end)
 -- Keep dead player in ragdoll on the ground for paramedic RP
 Citizen.CreateThread(function()
     while true do
-        Wait(0)
-
         if isDead then
             local playerPed = PlayerPedId()
 
@@ -213,6 +212,9 @@ Citizen.CreateThread(function()
                 EnableControlAction(0, 249, true) -- N key (push to talk)
                 EnableControlAction(0, 38, true)  -- E key (respawn after timer)
             end
+            Wait(0) -- Run every frame while dead to block controls
+        else
+            Wait(500) -- Check less frequently when alive
         end
     end
 end)
