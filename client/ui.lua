@@ -1,43 +1,65 @@
 -- ==========================================
 -- UI SYSTEM
 -- NUI interface management
+-- 
+-- This system manages the menu interface (NUI) for both:
+-- - Patient Menu (F6): Shows player's own vitals and injuries
+-- - Paramedic Menu (F7): Shows nearby patients, treatments, and equipment
+-- 
+-- MENU WORKFLOW:
+-- 1. Key press detected in client/main.lua
+-- 2. Toggle function called (TogglePatientMenu or ToggleParamedicMenu)
+-- 3. SetNuiFocus enables/disables mouse and keyboard input for the UI
+-- 4. SendNUIMessage sends data to JavaScript (html/js/app.js)
+-- 5. JavaScript renders the menu and handles user interactions
+-- 6. User actions trigger NUI callbacks back to Lua
+-- 7. Menu closes via Escape key, close button, or pressing F6/F7 again
 -- ==========================================
 
-local uiOpen = false
-local currentMenu = nil
+-- Menu state tracking
+local uiOpen = false          -- Is any menu currently visible?
+local currentMenu = nil       -- Which menu is open? ('patient' or 'paramedic')
 
--- Toggle patient menu
+-- Toggle patient menu (called when F6 is pressed)
+-- Shows player's current vitals and injuries
 function TogglePatientMenu()
     uiOpen = not uiOpen
     currentMenu = 'patient'
     
+    -- CRITICAL: SetNuiFocus controls whether UI can receive input
+    -- First parameter: Can UI receive keyboard input?
+    -- Second parameter: Can UI receive mouse input?
     SetNuiFocus(uiOpen, uiOpen)
     
     if uiOpen then
+        -- Opening menu: Gather player data and send to NUI
         SendNUIMessage({
             action = 'openMenu',
             menuType = 'patient',
             data = {
-                injuries = GetInjuriesForNUI(),
-                vitals = GetPlayerVitals()
+                injuries = GetInjuriesForNUI(),  -- Formatted injury list
+                vitals = GetPlayerVitals()       -- Current vital signs
             }
         })
     else
+        -- Closing menu: Tell NUI to hide
         SendNUIMessage({
             action = 'closeMenu'
         })
     end
 end
 
--- Toggle paramedic menu
+-- Toggle paramedic menu (called when F7 is pressed)
+-- Shows nearby patients, available treatments, and equipment inventory
 function ToggleParamedicMenu()
     uiOpen = not uiOpen
     currentMenu = 'paramedic'
     
+    -- Enable/disable NUI focus (same as patient menu)
     SetNuiFocus(uiOpen, uiOpen)
     
     if uiOpen then
-        -- Get nearby players
+        -- Get nearby players within 10 meters
         local nearbyPlayers = GetNearbyPlayers(10.0)
         
         SendNUIMessage({
@@ -112,12 +134,17 @@ function GetNearbyPlayers(radius)
     return players
 end
 
--- NUI Callbacks
+-- NUI Callbacks - These functions are called when JavaScript sends data back to Lua
+-- JavaScript sends via: postNUI('callbackName', {data})
+-- Lua receives via: RegisterNUICallback('callbackName', function)
+
+-- Close menu callback
+-- Called when user presses Escape or clicks the × button
 RegisterNUICallback('closeMenu', function(data, cb)
     uiOpen = false
     currentMenu = nil
-    SetNuiFocus(false, false)
-    cb('ok')
+    SetNuiFocus(false, false)  -- CRITICAL: Returns keyboard/mouse control to game
+    cb('ok')  -- Must respond to JavaScript
 end)
 
 RegisterNUICallback('addInjury', function(data, cb)

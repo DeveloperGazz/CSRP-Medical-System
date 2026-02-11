@@ -92,8 +92,16 @@ function toggleDarkMode() {
 
 // ==========================================
 // MENU SYSTEM
+// Handles opening and closing of NUI menus
 // ==========================================
 
+/**
+ * Open a menu with provided data
+ * Called when Lua sends: SendNUIMessage({action: 'openMenu', menuType: 'patient', data: {...}})
+ * 
+ * @param {string} menuType - Type of menu to open ('patient', 'paramedic', 'mci', 'equipment')
+ * @param {object} data - Menu data from Lua (vitals, injuries, equipment, etc.)
+ */
 function openMenu(menuType, data) {
     currentMenu = menuType;
     isClosing = false; // Reset closing flag when opening a menu
@@ -103,7 +111,7 @@ function openMenu(menuType, data) {
         appElement.style.display = 'flex';
     }
     
-    // Hide all menus first
+    // Hide all menus first (ensures only one menu visible at a time)
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
@@ -135,19 +143,36 @@ function openMenu(menuType, data) {
     }
 }
 
+/**
+ * Close the currently open menu
+ * Can be called by user (Escape key, close button) or by Lua backend
+ * 
+ * @param {boolean} notifyBackend - If true, sends callback to Lua to release NUI focus
+ *                                   Set to false when Lua initiated the close (prevents infinite loop)
+ * 
+ * IMPORTANT: This function has two guard clauses to prevent common issues:
+ * 1. isClosing flag prevents recursive calls (e.g., rapid Escape presses)
+ * 2. currentMenu check prevents closing when nothing is open
+ */
 function closeMenu(notifyBackend = true) {
-    // Prevent multiple simultaneous close calls
+    // Guard 1: Prevent multiple simultaneous close calls
+    // Fixes "Maximum call stack size exceeded" error
+    if (isClosing) {
+    // Guard 1: Prevent multiple simultaneous close calls
+    // Fixes "Maximum call stack size exceeded" error
     if (isClosing) {
         return;
     }
     
-    // Don't try to close if no menu is open
+    // Guard 2: Don't try to close if no menu is open
+    // Prevents unnecessary operations
     if (!currentMenu) {
         return;
     }
     
-    isClosing = true;
+    isClosing = true;  // Set flag during close operation
     
+    // Hide all menu containers
     document.querySelectorAll('.menu-container').forEach(menu => {
         menu.style.display = 'none';
     });
@@ -157,7 +182,7 @@ function closeMenu(notifyBackend = true) {
         appElement.style.display = 'none';
     }
     
-    currentMenu = null;
+    currentMenu = null;  // Clear current menu state
     
     // Reset selected patient when closing paramedic menu
     if (typeof selectedPatientId !== 'undefined') {
@@ -165,6 +190,8 @@ function closeMenu(notifyBackend = true) {
     }
     
     // Notify Lua only when user initiates close (not when backend tells us to close)
+    // When user closes: notifyBackend = true → Tell Lua to call SetNuiFocus(false, false)
+    // When Lua closes: notifyBackend = false → Don't callback to Lua (already knows)
     if (notifyBackend) {
         postNUI('closeMenu', {});
     }
@@ -934,8 +961,23 @@ function updateVitalTrends(context, trends) {
 
 // ==========================================
 // NUI MESSAGE HANDLER
+// Receives messages from Lua via SendNUIMessage()
 // ==========================================
 
+/**
+ * Main message handler for all Lua → JavaScript communication
+ * Lua sends: SendNUIMessage({action: 'actionName', data: {...}})
+ * JavaScript receives via window 'message' event
+ * 
+ * Message Types:
+ * - openMenu: Show a menu with data
+ * - closeMenu: Hide current menu
+ * - updateVitals: Update vital signs display
+ * - updateInjuries: Update injuries list
+ * - updateEquipment: Update equipment inventory
+ * - updatePatientData: Update selected patient data in paramedic menu
+ * - showNotification: Display popup message
+ */
 window.addEventListener('message', (event) => {
     const data = event.data;
     

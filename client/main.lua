@@ -39,21 +39,25 @@ Citizen.CreateThread(function()
 end)
 
 -- Key bindings
+-- This thread runs continuously to detect F6 and F7 key presses
+-- Wait(0) checks every frame (~60 times per second)
 Citizen.CreateThread(function()
     while true do
-        Wait(0)
+        Wait(0)  -- Yield to other threads each frame
         
-        -- Patient Menu (F6)
+        -- Patient Menu (F6) - Control code 167
+        -- IsControlJustReleased ensures key was pressed AND released (prevents holding)
         if IsControlJustReleased(0, 167) then -- F6
             if Config.Permissions.UsePatientMenu then
-                TogglePatientMenu()
+                TogglePatientMenu()  -- Defined in client/ui.lua
             end
         end
         
-        -- Paramedic Menu (F7)
+        -- Paramedic Menu (F7) - Control code 168
+        -- Only works if player has paramedic permission
         if IsControlJustReleased(0, 168) then -- F7
             if Config.Permissions.UseParamedicMenu and isParamedic then
-                ToggleParamedicMenu()
+                ToggleParamedicMenu()  -- Defined in client/ui.lua
             end
         end
     end

@@ -2,6 +2,14 @@
 
 A comprehensive, modular medical system for FiveM UK RP servers providing an immersive and realistic paramedic experience.
 
+## 📚 Documentation
+
+**NEW: Complete Menu System Guide Available!**
+- **[MENU_SYSTEM_GUIDE.md](MENU_SYSTEM_GUIDE.md)** - Comprehensive step-by-step guide explaining how the menu system works
+- **[docs/MENU_WORKFLOW_DIAGRAM.md](docs/MENU_WORKFLOW_DIAGRAM.md)** - Visual diagrams and flow charts
+- **[BUG_FIX_SUMMARY.md](BUG_FIX_SUMMARY.md)** - Previous bug fixes and solutions
+- **[CLOSE_MENU_FIX_SUMMARY.md](CLOSE_MENU_FIX_SUMMARY.md)** - Menu closing issue fixes
+
 ## 🚑 Features
 
 ### Comprehensive Injury System
