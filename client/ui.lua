@@ -181,3 +181,29 @@ RegisterNUICallback('selectPatient', function(data, cb)
         cb('error')
     end
 end)
+
+-- Network event handlers
+
+-- When paramedic requests this player's data
+RegisterNetEvent('csrp_medical:sendPatientData')
+AddEventHandler('csrp_medical:sendPatientData', function(paramedicId)
+    local playerData = {
+        injuries = GetInjuriesForNUI(),
+        vitals = GetPlayerVitals(),
+        name = GetPlayerName(PlayerId()),
+        id = GetPlayerServerId(PlayerId())
+    }
+    
+    -- Send data back to the requesting paramedic
+    TriggerServerEvent('csrp_medical:sendPatientDataToParamedic', paramedicId, playerData)
+end)
+
+-- When paramedic receives patient data
+RegisterNetEvent('csrp_medical:receivePatientData')
+AddEventHandler('csrp_medical:receivePatientData', function(patientData)
+    -- Update the paramedic's NUI with patient information
+    SendNUIMessage({
+        action = 'updatePatientData',
+        patient = patientData
+    })
+end)

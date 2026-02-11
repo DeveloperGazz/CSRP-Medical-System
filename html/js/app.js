@@ -941,6 +941,31 @@ window.addEventListener('message', (event) => {
         case 'updateEquipment':
             updateEquipmentInventory(data.equipment);
             break;
+        case 'updatePatientData':
+            if (currentMenu === 'paramedic' && data.patient) {
+                patientData = data.patient;
+                
+                // Update patient vitals
+                if (data.patient.vitals) {
+                    const vitalsDiv = document.getElementById('patient-vitals');
+                    if (vitalsDiv) {
+                        vitalsDiv.innerHTML = `
+                            <div class="vital-row"><strong>HR:</strong> ${data.patient.vitals.heartRate || '--'} BPM</div>
+                            <div class="vital-row"><strong>BP:</strong> ${data.patient.vitals.bloodPressureSystolic || '--'}/${data.patient.vitals.bloodPressureDiastolic || '--'} mmHg</div>
+                            <div class="vital-row"><strong>SpO2:</strong> ${data.patient.vitals.oxygenSaturation || '--'}%</div>
+                            <div class="vital-row"><strong>RR:</strong> ${data.patient.vitals.respiratoryRate || '--'} /min</div>
+                            <div class="vital-row"><strong>Temp:</strong> ${data.patient.vitals.temperature ? data.patient.vitals.temperature.toFixed(1) : '--'}°C</div>
+                            <div class="vital-row"><strong>Consciousness:</strong> ${data.patient.vitals.consciousness || '--'}</div>
+                        `;
+                    }
+                }
+                
+                // Update injuries list
+                if (data.patient.injuries) {
+                    updateParamedicInjuryList(data.patient.injuries);
+                }
+            }
+            break;
         case 'showNotification':
             showNotification(data.message, data.type);
             break;
