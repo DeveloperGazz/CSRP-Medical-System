@@ -19,7 +19,7 @@ Citizen.CreateThread(function()
                 print('[CSRP Medical] Equipment initialized')
             end
         else
-            print('[CSRP Medical] ERROR: Equipment module not loaded')
+            print('[CSRP Medical] ERROR: Equipment module not loaded during equipment.lua initialization. Check fxmanifest.lua load order')
             currentEquipment = {}
         end
     end

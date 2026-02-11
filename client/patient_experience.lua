@@ -57,7 +57,14 @@ Citizen.CreateThread(function()
             -- Update pain level
             patientEffects.painLevel = vitals.pain or 0
             -- Ensure consciousness is a number
-            patientEffects.consciousness = tonumber(vitals.consciousness) or 4
+            local consciousness = tonumber(vitals.consciousness)
+            if not consciousness then
+                consciousness = 4  -- Default to Alert
+                if Config and Config.Debug then
+                    print('[CSRP Medical] Warning: Invalid consciousness value received, defaulting to Alert (4)')
+                end
+            end
+            patientEffects.consciousness = consciousness
         end
     end
 end)

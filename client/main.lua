@@ -22,7 +22,7 @@ Citizen.CreateThread(function()
         if Equipment and Equipment.Initialize then
             paramedicEquipment = Equipment.Initialize()
         else
-            print('[CSRP Medical] ERROR: Equipment module not loaded')
+            print('[CSRP Medical] ERROR: Equipment module not loaded. Check that modules/equipment.lua is loaded before client scripts in fxmanifest.lua')
             paramedicEquipment = {}
         end
     end
