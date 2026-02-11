@@ -212,36 +212,43 @@ function createInjuryCard(injury) {
 // ==========================================
 
 function populateParamedicMenu(data) {
-    // Ensure data and data.patient exist
-    if (!data || !data.patient) {
+    // Ensure data exists
+    if (!data) {
         console.error('Invalid paramedic menu data:', data);
         return;
     }
     
-    patientData = data.patient;
+    // Handle the paramedic menu data structure (equipment, nearbyPlayers, treatments)
     equipmentData = data.equipment;
     
-    // Update patient info header
-    updatePatientHeader(data.patient);
-    
-    // Update vitals (with null check)
-    if (data.patient.vitals) {
-        updateVitalsDisplay('paramedic', data.patient.vitals);
+    // Update equipment inventory if available
+    if (data.equipment) {
+        updateEquipmentInventory(data.equipment);
     }
     
-    // Update body map (with null check)
-    if (data.patient.injuries) {
-        updateBodyMap(data.patient.injuries);
+    // If there's a selected patient, update their information
+    if (data.patient) {
+        patientData = data.patient;
+        
+        // Update patient info header
+        updatePatientHeader(data.patient);
+        
+        // Update vitals (with null check)
+        if (data.patient.vitals) {
+            updateVitalsDisplay('paramedic', data.patient.vitals);
+        }
+        
+        // Update body map (with null check)
+        if (data.patient.injuries) {
+            updateBodyMap(data.patient.injuries);
+        }
+        
+        // Update injury list
+        updateParamedicInjuryList(data.patient.injuries);
+        
+        // Update assessment checklist
+        updateAssessmentChecklist(data.patient.assessments);
     }
-    
-    // Update injury list
-    updateParamedicInjuryList(data.patient.injuries);
-    
-    // Update equipment inventory
-    updateEquipmentInventory(data.equipment);
-    
-    // Update assessment checklist
-    updateAssessmentChecklist(data.patient.assessments);
 }
 
 function updatePatientHeader(patient) {

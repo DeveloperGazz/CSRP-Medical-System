@@ -1,5 +1,26 @@
 /* CSRP Medical System - NHS Inspired UI */
 
+:root {
+    /* Menu dimensions */
+    --menu-max-height: 90vh;
+    /* 
+     * Tab content offset calculation:
+     * - Menu header: 94px (see .menu-header: 25px × 2 padding + 28px h1 + 2px border + spacing)
+     * - Tab navigation: 66px (see .tab-btn: 18px × 2 padding + 17px font + 3px border + spacing)
+     * Total: 160px (update if .menu-header or .tab-btn styles change)
+     * Note: These are calculated values - update this comment if header/tab styles are modified
+     */
+    --tab-content-offset: 160px;
+    
+    /* Scroll indicator system */
+    --scroll-indicator-color: rgba(0, 94, 184, 0.2);
+    --scroll-fade-color: white;
+    --scroll-fade-size: 40px; /* Height of fade-out effect at scroll boundaries */
+    --scroll-shadow-size: 14px; /* Height of colored shadow indicators */
+    --scroll-fade-start: 30%; /* Gradient stop for top fade-out */
+    --scroll-fade-end: 70%; /* Gradient stop for bottom fade-out */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -25,16 +46,18 @@ body {
 }
 
 .menu-container {
-    background: linear-gradient(135deg, #005EB8 0%, #003d82 100%);
+    background: white;
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     pointer-events: auto;
-    width: 90%;
-    max-width: 800px;
-    max-height: 85vh;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
     overflow: hidden;
     pointer-events: all;
     animation: slideIn 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes slideIn {
@@ -49,17 +72,18 @@ body {
 }
 
 .menu-header {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    background: linear-gradient(135deg, #005EB8 0%, #003d82 100%);
+    padding: 25px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #41B6E6;
+    flex-shrink: 0;
 }
 
 .menu-header h1 {
     color: white;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 600;
 }
 
@@ -85,32 +109,33 @@ body {
 }
 
 .menu-content {
-    padding: 20px;
+    padding: 30px;
     overflow-y: auto;
-    max-height: calc(85vh - 84px);
+    max-height: calc(90vh - 94px);
     background: white;
+    flex: 1;
 }
 
 /* Vitals Panel */
 .vitals-panel {
     background: #f8f9fa;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
 }
 
 .vitals-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .vital-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 14px;
+    margin: 8px 0;
     background: white;
     border-radius: 5px;
     border-left: 4px solid #005EB8;
@@ -119,15 +144,16 @@ body {
 .vital-label {
     font-weight: 600;
     color: #333;
+    font-size: 16px;
 }
 
 .vital-value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #005EB8;
     flex-grow: 1;
     text-align: right;
-    padding-right: 10px;
+    padding-right: 15px;
 }
 
 .vital-unit {
@@ -152,20 +178,20 @@ body {
 .injuries-panel {
     background: #f8f9fa;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
 }
 
 .injuries-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .injury-item {
     background: white;
-    padding: 12px;
-    margin: 8px 0;
+    padding: 16px;
+    margin: 10px 0;
     border-radius: 5px;
     border-left: 4px solid #DA291C;
 }
@@ -173,13 +199,13 @@ body {
 .injury-name {
     font-weight: 600;
     color: #333;
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .injury-details {
     color: #666;
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 15px;
+    margin-top: 8px;
 }
 
 .injury-severity {
@@ -219,26 +245,26 @@ body {
 
 /* Actions Panel */
 .actions-panel {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .actions-panel h2 {
     color: #005EB8;
-    margin-bottom: 15px;
-    font-size: 18px;
+    margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .action-btn {
     background: #005EB8;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 15px 30px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    margin: 5px;
+    margin: 8px;
 }
 
 .action-btn:hover {
@@ -264,11 +290,11 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 15px;
+    padding: 18px;
     background: transparent;
     border: none;
     color: #666;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -286,39 +312,77 @@ body {
 
 .tab-content {
     display: none;
-    padding: 20px;
+    padding: 30px;
+    /* Dynamic height: menu max-height minus header and tabs */
+    max-height: calc(var(--menu-max-height) - var(--tab-content-offset));
+    overflow-y: auto;
+    /* 
+     * Scroll indicators: 4-layer gradient system to show scrollable content
+     * Layer 1-2: White fade overlays that hide content at boundaries (local attachment)
+     * Layer 3-4: Colored shadow indicators that appear when scrollable (scroll attachment)
+     * Note: rgba(255,255,255,0) creates transparent white for smooth fade transitions
+     */
+    background: 
+        /* Top fade: white gradient fades content at top edge */
+        linear-gradient(var(--scroll-fade-color) var(--scroll-fade-start), rgba(255,255,255,0)),
+        /* Bottom fade: white gradient fades content at bottom edge */
+        linear-gradient(rgba(255,255,255,0), var(--scroll-fade-color) var(--scroll-fade-end)) 0 100%,
+        /* Top shadow: blue gradient appears when content scrollable above */
+        radial-gradient(farthest-side at 50% 0, var(--scroll-indicator-color), rgba(0,0,0,0)),
+        /* Bottom shadow: blue gradient appears when content scrollable below */
+        radial-gradient(farthest-side at 50% 100%, var(--scroll-indicator-color), rgba(0,0,0,0)) 0 100%;
+    background-repeat: no-repeat;
+    background-color: var(--scroll-fade-color);
+    background-size: 
+        100% var(--scroll-fade-size), 
+        100% var(--scroll-fade-size), 
+        100% var(--scroll-shadow-size), 
+        100% var(--scroll-shadow-size);
+    background-attachment: local, local, scroll, scroll;
 }
 
 .tab-content.active {
     display: block;
 }
 
+.tab-content h2 {
+    color: #005EB8;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #41B6E6;
+}
+
 /* Patient List */
 .patient-card {
     background: #f8f9fa;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s;
-    border-left: 4px solid #005EB8;
+    border-left: 5px solid #005EB8;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .patient-card:hover {
     background: #e9ecef;
     transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .patient-name {
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
-    font-size: 16px;
+    font-size: 18px;
+    margin-bottom: 6px;
 }
 
 .patient-distance {
     color: #666;
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 15px;
+    margin-top: 8px;
 }
 
 /* Treatment List */
@@ -326,18 +390,22 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
 }
 
 .category-btn {
     background: #f8f9fa;
     border: 2px solid #005EB8;
     color: #005EB8;
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 20px;
     font-weight: 600;
+    font-size: 15px;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .category-btn:hover,
@@ -348,33 +416,42 @@ body {
 
 .treatment-card {
     background: #f8f9fa;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border-left: 4px solid #009639;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border-left: 5px solid #009639;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.treatment-card:hover {
+    background: #e9ecef;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateX(5px);
 }
 
 .treatment-name {
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
-    font-size: 16px;
+    font-size: 18px;
+    margin-bottom: 8px;
 }
 
 .treatment-description {
     color: #666;
-    font-size: 14px;
-    margin: 5px 0;
+    font-size: 15px;
+    margin: 8px 0;
 }
 
 .treatment-btn {
     background: #009639;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .treatment-btn:hover {
@@ -392,22 +469,35 @@ body {
     justify-content: space-between;
     align-items: center;
     background: #f8f9fa;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 5px;
+    padding: 18px 20px;
+    margin: 12px 0;
+    border-radius: 8px;
+    border-left: 4px solid #005EB8;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: all 0.2s;
+}
+
+.equipment-item:hover {
+    background: #e9ecef;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+    transform: translateX(3px);
 }
 
 .equipment-name {
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
+    font-size: 17px;
 }
 
 .equipment-quantity {
     background: #005EB8;
     color: white;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 16px;
+    min-width: 40px;
+    text-align: center;
 }
 
 .equipment-quantity.low {
@@ -419,19 +509,24 @@ body {
 }
 
 /* Scrollbar */
-.menu-content::-webkit-scrollbar {
-    width: 8px;
+.menu-content::-webkit-scrollbar,
+.tab-content::-webkit-scrollbar {
+    width: 10px;
 }
 
-.menu-content::-webkit-scrollbar-track {
+.menu-content::-webkit-scrollbar-track,
+.tab-content::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-radius: 10px;
 }
 
-.menu-content::-webkit-scrollbar-thumb {
+.menu-content::-webkit-scrollbar-thumb,
+.tab-content::-webkit-scrollbar-thumb {
     background: #005EB8;
-    border-radius: 4px;
+    border-radius: 10px;
 }
 
-.menu-content::-webkit-scrollbar-thumb:hover {
+.menu-content::-webkit-scrollbar-thumb:hover,
+.tab-content::-webkit-scrollbar-thumb:hover {
     background: #003d82;
 }
