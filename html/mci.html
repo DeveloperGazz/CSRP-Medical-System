@@ -3,13 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCI Management</title>
+    <title>MCI Management - CSRP Medical</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <!-- MCI (Mass Casualty Incident) management UI - Planned for future implementation -->
-    <div id="mci-management">
-        <h2>MCI Management</h2>
-        <p>Feature under development</p>
+    <div id="mci-standalone" class="menu-container mci">
+        <div class="menu-header emergency">
+            <h1>🚨 MASS CASUALTY INCIDENT</h1>
+            <button class="close-btn" onclick="closeMCIManagement()">×</button>
+        </div>
+        
+        <div class="menu-content">
+            <!-- MCI Status -->
+            <div class="mci-status-panel">
+                <h2>📊 Incident Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Incident Type:</span>
+                        <span class="status-value" id="mci-type">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Duration:</span>
+                        <span class="status-value" id="mci-duration">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Total Patients:</span>
+                        <span class="status-value" id="mci-patient-count">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Location:</span>
+                        <span class="status-value" id="mci-location">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UK METHANE Triage System -->
+            <div class="triage-panel">
+                <h2>🏷️ Triage Categories (UK METHANE)</h2>
+                <div class="triage-categories">
+                    <div class="triage-category t1">
+                        <div class="category-header">
+                            <span class="category-badge" style="background-color: #ff0000;">T1</span>
+                            <strong>IMMEDIATE</strong>
+                        </div>
+                        <p>Life-threatening, requires immediate treatment</p>
+                        <div class="category-count" id="count-t1">0</div>
+                    </div>
+                    
+                    <div class="triage-category t2">
+                        <div class="category-header">
+                            <span class="category-badge" style="background-color: #ffa500;">T2</span>
+                            <strong>URGENT</strong>
+                        </div>
+                        <p>Serious injuries, treatment can be delayed briefly</p>
+                        <div class="category-count" id="count-t2">0</div>
+                    </div>
+                    
+                    <div class="triage-category t3">
+                        <div class="category-header">
+                            <span class="category-badge" style="background-color: #ffff00; color: #000;">T3</span>
+                            <strong>DELAYED</strong>
+                        </div>
+                        <p>Minor injuries, walking wounded</p>
+                        <div class="category-count" id="count-t3">0</div>
+                    </div>
+                    
+                    <div class="triage-category t4">
+                        <div class="category-header">
+                            <span class="category-badge" style="background-color: #000000;">T4</span>
+                            <strong>EXPECTANT</strong>
+                        </div>
+                        <p>Unlikely to survive, palliative care</p>
+                        <div class="category-count" id="count-t4">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patients List -->
+            <div class="mci-patients-panel">
+                <h2>👥 Patients at Scene</h2>
+                <div id="mci-patients-list" class="mci-patients-list">
+                    <p class="no-data">No patients registered</p>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="mci-actions-panel">
+                <h2>⚡ Quick Actions</h2>
+                <div class="button-grid">
+                    <button class="action-btn" onclick="triageNextPatient()">
+                        <span class="btn-icon">🏷️</span> Triage Next Patient
+                    </button>
+                    <button class="action-btn" onclick="requestBackup()">
+                        <span class="btn-icon">📞</span> Request Backup
+                    </button>
+                    <button class="action-btn" onclick="updateStatus()">
+                        <span class="btn-icon">📋</span> Update Status
+                    </button>
+                    <button class="action-btn emergency" onclick="endMCI()">
+                        <span class="btn-icon">✅</span> End MCI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- METHANE Report -->
+            <div class="methane-panel">
+                <h2>📝 METHANE Report</h2>
+                <div class="methane-grid">
+                    <div class="methane-item">
+                        <strong>M</strong>ajor Incident Declared
+                    </div>
+                    <div class="methane-item">
+                        <strong>E</strong>xact Location: <span id="methane-location">--</span>
+                    </div>
+                    <div class="methane-item">
+                        <strong>T</strong>ype of Incident: <span id="methane-type">--</span>
+                    </div>
+                    <div class="methane-item">
+                        <strong>H</strong>azards: <span id="methane-hazards">None identified</span>
+                    </div>
+                    <div class="methane-item">
+                        <strong>A</strong>ccess: <span id="methane-access">Road access available</span>
+                    </div>
+                    <div class="methane-item">
+                        <strong>N</strong>umber of Casualties: <span id="methane-casualties">0</span>
+                    </div>
+                    <div class="methane-item">
+                        <strong>E</strong>mergency Services: <span id="methane-services">Ambulance on scene</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        let mciData = null;
+        let updateInterval = null;
+        
+        function closeMCIManagement() {
+            clearInterval(updateInterval);
+            fetch('https://csrp-medical-system/closeMCI', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function triageNextPatient() {
+            fetch('https://csrp-medical-system/triageNextPatient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function requestBackup() {
+            fetch('https://csrp-medical-system/requestBackup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function updateStatus() {
+            fetch('https://csrp-medical-system/updateMCIStatus', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function endMCI() {
+            if (confirm('Are you sure you want to end this Mass Casualty Incident?')) {
+                fetch('https://csrp-medical-system/endMCI', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({})
+                });
+            }
+        }
+        
+        function triagePatient(patientId, category) {
+            fetch('https://csrp-medical-system/triagePatient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    patientId: patientId,
+                    category: category
+                })
+            });
+        }
+        
+        // Listen for data updates
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'updateMCIData') {
+                updateMCIDisplay(event.data.data);
+            }
+        });
+        
+        function updateMCIDisplay(data) {
+            if (!data) return;
+            
+            mciData = data;
+            
+            // Update status
+            if (data.type) document.getElementById('mci-type').textContent = data.type;
+            if (data.duration !== undefined) {
+                const minutes = Math.floor(data.duration / 60);
+                const seconds = Math.floor(data.duration % 60);
+                document.getElementById('mci-duration').textContent = `${minutes}m ${seconds}s`;
+            }
+            if (data.patientCount !== undefined) {
+                document.getElementById('mci-patient-count').textContent = data.patientCount;
+            }
+            
+            // Update METHANE
+            if (data.type) document.getElementById('methane-type').textContent = data.type;
+            if (data.patientCount !== undefined) {
+                document.getElementById('methane-casualties').textContent = data.patientCount;
+            }
+            
+            // Update triage counts
+            if (data.triageCounts) {
+                document.getElementById('count-t1').textContent = data.triageCounts.T1 || 0;
+                document.getElementById('count-t2').textContent = data.triageCounts.T2 || 0;
+                document.getElementById('count-t3').textContent = data.triageCounts.T3 || 0;
+                document.getElementById('count-t4').textContent = data.triageCounts.T4 || 0;
+            }
+            
+            // Update patients list
+            if (data.patients) {
+                const patientsList = document.getElementById('mci-patients-list');
+                if (data.patients.length > 0) {
+                    patientsList.innerHTML = data.patients.map(patient => {
+                        const categoryClass = patient.triage ? patient.triage.toLowerCase() : 'untriaged';
+                        return `<div class="mci-patient-item ${categoryClass}">
+                            <div class="patient-id">Patient #${patient.id}</div>
+                            <div class="patient-status">${patient.triage || 'Not triaged'}</div>
+                            <div class="patient-actions">
+                                <button onclick="triagePatient(${patient.id}, 'T1')">T1</button>
+                                <button onclick="triagePatient(${patient.id}, 'T2')">T2</button>
+                                <button onclick="triagePatient(${patient.id}, 'T3')">T3</button>
+                                <button onclick="triagePatient(${patient.id}, 'T4')">T4</button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    patientsList.innerHTML = '<p class="no-data">No patients registered</p>';
+                }
+            }
+            
+            // Start auto-update timer if not already running
+            if (!updateInterval && mciData && mciData.duration !== undefined) {
+                updateInterval = setInterval(() => {
+                    if (mciData && mciData.duration !== undefined) {
+                        mciData.duration++;
+                        const minutes = Math.floor(mciData.duration / 60);
+                        const seconds = Math.floor(mciData.duration % 60);
+                        document.getElementById('mci-duration').textContent = `${minutes}m ${seconds}s`;
+                    }
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 </html>

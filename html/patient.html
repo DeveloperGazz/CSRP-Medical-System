@@ -3,13 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Menu</title>
+    <title>Patient Menu - CSRP Medical</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <!-- Patient menu UI - Planned for future implementation -->
-    <div id="patient-menu">
-        <h2>Patient Menu</h2>
-        <p>Feature under development</p>
+    <div id="patient-standalone" class="menu-container">
+        <div class="menu-header">
+            <h1>🏥 Patient Status</h1>
+            <button class="close-btn" onclick="closePatientMenu()">×</button>
+        </div>
+        
+        <div class="menu-content">
+            <!-- Vital Signs Panel -->
+            <div class="vitals-panel">
+                <h2>📊 Your Vital Signs</h2>
+                <div class="vitals-grid">
+                    <div class="vital-card">
+                        <span class="vital-icon">💓</span>
+                        <div class="vital-info">
+                            <span class="vital-label">Heart Rate</span>
+                            <span class="vital-value" id="patient-hr">--</span>
+                            <span class="vital-unit">BPM</span>
+                        </div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <span class="vital-icon">🩸</span>
+                        <div class="vital-info">
+                            <span class="vital-label">Blood Pressure</span>
+                            <span class="vital-value" id="patient-bp">--/--</span>
+                            <span class="vital-unit">mmHg</span>
+                        </div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <span class="vital-icon">🫁</span>
+                        <div class="vital-info">
+                            <span class="vital-label">O₂ Saturation</span>
+                            <span class="vital-value" id="patient-spo2">--</span>
+                            <span class="vital-unit">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <span class="vital-icon">🌡️</span>
+                        <div class="vital-info">
+                            <span class="vital-label">Temperature</span>
+                            <span class="vital-value" id="patient-temp">--</span>
+                            <span class="vital-unit">°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Injuries Panel -->
+            <div class="injuries-panel">
+                <h2>🩹 Current Injuries</h2>
+                <div id="patient-injuries-list" class="injuries-list">
+                    <p class="no-data">No injuries recorded</p>
+                </div>
+            </div>
+            
+            <!-- Symptoms Panel -->
+            <div class="symptoms-panel">
+                <h2>🔍 Symptoms</h2>
+                <div id="patient-symptoms" class="symptoms-list">
+                    <p class="no-data">No symptoms</p>
+                </div>
+            </div>
+            
+            <!-- Actions Panel -->
+            <div class="actions-panel">
+                <h2>⚡ Quick Actions</h2>
+                <div class="button-grid">
+                    <button class="action-btn primary" onclick="requestHelp()">
+                        <span class="btn-icon">🚨</span>
+                        Request Help
+                    </button>
+                    <button class="action-btn" onclick="viewTreatments()">
+                        <span class="btn-icon">💊</span>
+                        View Treatments
+                    </button>
+                    <button class="action-btn" onclick="checkCondition()">
+                        <span class="btn-icon">🏥</span>
+                        Check Condition
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        function closePatientMenu() {
+            fetch('https://csrp-medical-system/closePatientMenu', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function requestHelp() {
+            fetch('https://csrp-medical-system/requestHelp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function viewTreatments() {
+            fetch('https://csrp-medical-system/viewTreatments', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        function checkCondition() {
+            fetch('https://csrp-medical-system/checkCondition', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+        }
+        
+        // Listen for data updates
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'updatePatientData') {
+                updatePatientDisplay(event.data.vitals, event.data.injuries);
+            }
+        });
+        
+        function updatePatientDisplay(vitals, injuries) {
+            if (vitals) {
+                document.getElementById('patient-hr').textContent = vitals.heartRate || '--';
+                document.getElementById('patient-bp').textContent = 
+                    (vitals.systolicBP && vitals.diastolicBP) ? 
+                    vitals.systolicBP + '/' + vitals.diastolicBP : '--/--';
+                document.getElementById('patient-spo2').textContent = vitals.oxygenSaturation || '--';
+                document.getElementById('patient-temp').textContent = vitals.temperature ? vitals.temperature.toFixed(1) : '--';
+            }
+            
+            if (injuries && injuries.length > 0) {
+                const injuriesList = document.getElementById('patient-injuries-list');
+                injuriesList.innerHTML = injuries.map(injury => 
+                    `<div class="injury-item severity-${injury.severity}">
+                        <strong>${injury.type}</strong> - ${injury.bodyZone}
+                        <span class="severity">Severity: ${injury.severity}</span>
+                    </div>`
+                ).join('');
+            }
+        }
+    </script>
 </body>
 </html>
