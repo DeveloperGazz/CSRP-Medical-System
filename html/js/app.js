@@ -159,6 +159,11 @@ function closeMenu(notifyBackend = true) {
     
     currentMenu = null;
     
+    // Reset selected patient when closing paramedic menu
+    if (typeof selectedPatientId !== 'undefined') {
+        selectedPatientId = null;
+    }
+    
     // Notify Lua only when user initiates close (not when backend tells us to close)
     if (notifyBackend) {
         postNUI('closeMenu', {});
@@ -578,8 +583,13 @@ function updateEquipmentInventory(equipment) {
 function updateTreatmentsList(treatments) {
     const treatmentsList = document.getElementById('treatments-list');
     
-    if (!treatmentsList || !treatments) {
-        if (!treatmentsList) console.warn('Treatments list element not found');
+    if (!treatmentsList) {
+        console.warn('Treatments list element not found');
+        return;
+    }
+    
+    if (!treatments) {
+        console.warn('No treatments data provided');
         return;
     }
     
@@ -622,20 +632,32 @@ function updateTreatmentsList(treatments) {
                 const treatmentCard = document.createElement('div');
                 treatmentCard.className = 'treatment-card';
                 
-                const equipmentNote = treatment.uses_equipment 
-                    ? `<span class="equipment-needed">⚠️ Requires: ${treatment.equipment}</span>` 
-                    : '';
+                const treatmentHeader = document.createElement('div');
+                treatmentHeader.className = 'treatment-header';
                 
-                treatmentCard.innerHTML = `
-                    <div class="treatment-header">
-                        <strong>${treatment.name}</strong>
-                        ${equipmentNote}
-                    </div>
-                    <div class="treatment-description">${treatment.description || ''}</div>
-                    <button class="btn-apply-treatment" onclick="applyTreatmentById('${treatment.id}')">
-                        Apply Treatment
-                    </button>
-                `;
+                const treatmentName = document.createElement('strong');
+                treatmentName.textContent = treatment.name;
+                treatmentHeader.appendChild(treatmentName);
+                
+                if (treatment.uses_equipment) {
+                    const equipmentNote = document.createElement('span');
+                    equipmentNote.className = 'equipment-needed';
+                    equipmentNote.textContent = `⚠️ Requires: ${treatment.equipment}`;
+                    treatmentHeader.appendChild(equipmentNote);
+                }
+                
+                const treatmentDesc = document.createElement('div');
+                treatmentDesc.className = 'treatment-description';
+                treatmentDesc.textContent = treatment.description || '';
+                
+                const applyBtn = document.createElement('button');
+                applyBtn.className = 'btn-apply-treatment';
+                applyBtn.textContent = 'Apply Treatment';
+                applyBtn.addEventListener('click', () => applyTreatmentById(treatment.id));
+                
+                treatmentCard.appendChild(treatmentHeader);
+                treatmentCard.appendChild(treatmentDesc);
+                treatmentCard.appendChild(applyBtn);
                 
                 categoryDiv.appendChild(treatmentCard);
             });

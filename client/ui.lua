@@ -65,7 +65,8 @@ function FormatEquipmentForNUI(equipment)
     end
     
     for key, value in pairs(equipment) do
-        local maxValue = Config.Equipment[key] or value
+        -- Always use Config.Equipment for max value to ensure accuracy
+        local maxValue = Config.Equipment and Config.Equipment[key] or 0
         formatted[key] = {
             name = key,
             current = value,
