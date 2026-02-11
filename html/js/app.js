@@ -155,6 +155,10 @@ function openMenu(menuType, data) {
  * 2. currentMenu check prevents closing when nothing is open
  */
 function closeMenu(notifyBackend = true) {
+    // Ensure notifyBackend is a boolean (click events may pass a PointerEvent object)
+    if (typeof notifyBackend !== 'boolean') {
+        notifyBackend = true;
+    }
     console.log('[CSRP Medical Debug] closeMenu called - notifyBackend:', notifyBackend, 'isClosing:', isClosing, 'currentMenu:', currentMenu);
     
     // Guard 1: Prevent multiple simultaneous close calls
@@ -1167,7 +1171,16 @@ function startMedicalRP() {
     let scenarioPanel = document.getElementById('scenario-selection');
     if (scenarioPanel) {
         var isHidden = scenarioPanel.style.display === 'none' || scenarioPanel.style.display === '';
-        scenarioPanel.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            scenarioPanel.style.display = 'block';
+            // Re-trigger slide-in animation on show
+            scenarioPanel.style.animation = 'none';
+            // Force reflow to restart animation
+            void scenarioPanel.offsetWidth;
+            scenarioPanel.style.animation = '';
+        } else {
+            scenarioPanel.style.display = 'none';
+        }
         return;
     }
 
@@ -1186,9 +1199,15 @@ function startMedicalRP() {
         btn.textContent = scenario.name;
         btn.addEventListener('click', function() {
             console.log('[CSRP Medical] Triggering scenario: ' + scenario.id);
+            // Add triggered animation class before hiding
+            btn.classList.add('scenario-triggered');
             postNUI('triggerScenario', { scenarioId: scenario.id });
             showNotification('Starting scenario: ' + scenario.name, 'info');
-            scenarioPanel.style.display = 'none';
+            // Delay hiding to allow trigger animation to play
+            setTimeout(function() {
+                scenarioPanel.style.display = 'none';
+                btn.classList.remove('scenario-triggered');
+            }, 600);
         });
         scenarioPanel.appendChild(btn);
     });
